@@ -1,3 +1,12 @@
+Integrantes 
+
+Diego Nogueira Garcia : 2062362
+Andre Jair Diaz Gonzalez : 2049041
+Jose Alberto Cano Puga : 2048477
+Rodrigo Martinez Gonzalez : 1869737
+
+
+
 1. Instalación de Dependencias
 El proyecto está dividido en dos carpetas principales. Debes instalar las librerías en ambas:
 
