@@ -1,0 +1,93 @@
+:root {
+    --bg-dark: #080808;
+    --bg-card: #121212;
+    --neon-cyan: #00F2FE;
+    --neon-purple: #9D50BB;
+    --imdb-yellow: #F5C518;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar {
+    background-color: #000000 !important;
+    border-bottom: 2px solid var(--neon-purple);
+}
+
+.neon-text {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.cyan-text { color: var(--neon-cyan); }
+
+.btn-neon {
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    background: transparent;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-neon:hover {
+    background-color: var(--neon-cyan);
+    color: #000;
+    box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+.btn-outline-neon {
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.btn-outline-neon:hover {
+    background-color: var(--neon-cyan);
+    color: #000;
+}
+
+.game-card {
+    background-color: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.game-card:hover {
+    border-color: var(--neon-purple);
+    box-shadow: 0 5px 15px rgba(157, 80, 187, 0.3);
+}
+
+.form-control {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+    color: white !important;
+}
+
+/* Ajuste de contraste para placeholders (Búsqueda, Login y Registro) */
+.form-control::placeholder {
+    color: #b3b3b3 !important; /* Gris claro para legibilidad */
+    opacity: 1;
+}
+
+/* Efecto visual al seleccionar campos */
+.form-control:focus {
+    background-color: #252525 !important;
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.3) !important;
+    outline: none;
+}
+
+.hero-section {
+    height: 400px;
+    background: linear-gradient(rgba(0,0,0,0) 0%, rgba(8,8,8,1) 100%), 
+                url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200');
+    background-size: cover;
+}
+
+.section-title {
+    border-left: 5px solid var(--imdb-yellow);
+    padding-left: 15px;
+}
