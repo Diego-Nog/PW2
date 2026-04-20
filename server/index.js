@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const userRoutes = require('./routes/userRoutes');
+const gameRoutes = require('./routes/gameRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Inicializar la aplicación
 const app = express();
@@ -9,6 +12,11 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Permite recibir datos en formato JSON
+
+// Rutas de la API
+app.use('/api/users', userRoutes);
+app.use('/api/games', gameRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Puerto y URI desde el archivo .env
 const PORT = process.env.PORT || 5000;
