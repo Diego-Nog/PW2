@@ -5,6 +5,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const SystemLog = require('./models/SystemLog');
 
 // Inicializar la aplicación
 const app = express();
@@ -12,6 +13,7 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Permite recibir datos en formato JSON
+app.use('/uploads', express.static('uploads'));
 
 // Rutas de la API
 app.use('/api/users', userRoutes);
