@@ -226,3 +226,38 @@ body {
     border: 1px solid rgba(0, 242, 254, 0.45);
     text-shadow: none;
 }
+
+.floating-manage-games-btn {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    border: 2px solid var(--neon-cyan);
+    background: #070707;
+    color: var(--neon-cyan);
+    font-size: 1.45rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 1px rgba(0, 242, 254, 0.25), 0 10px 30px rgba(0, 242, 254, 0.35);
+    z-index: 1085;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.floating-manage-games-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    background-color: rgba(0, 242, 254, 0.1);
+    box-shadow: 0 0 0 1px rgba(0, 242, 254, 0.45), 0 16px 36px rgba(0, 242, 254, 0.42);
+}
+
+@media (max-width: 576px) {
+    .floating-manage-games-btn {
+        right: 16px;
+        bottom: 16px;
+        width: 56px;
+        height: 56px;
+    }
+}

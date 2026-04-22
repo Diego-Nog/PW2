@@ -4,9 +4,10 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
-const AdminPanel = () => {
+const UserGamePanel = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const currentUserId = user?.id || user?._id;
   const [searchParams] = useSearchParams();
   const editId = searchParams.get('edit');
   const isEditMode = Boolean(editId);
@@ -27,25 +28,31 @@ const AdminPanel = () => {
   const [loadingGame, setLoadingGame] = useState(false);
 
   useEffect(() => {
-    if (!user || !user.is_admin) {
-      navigate('/');
+    if (!user) {
+      navigate('/login');
       return;
     }
+
+    if (user.is_admin) {
+      navigate('/admin/create-game');
+      return;
+    }
+
     axios.get('http://localhost:5000/api/genres')
       .then(res => setGenres(res.data.genres || res.data))
       .catch(() => setGenres([]));
   }, [user, navigate]);
 
   useEffect(() => {
-    if (!isEditMode) return;
+    if (!isEditMode || !currentUserId) return;
 
     const fetchGame = async () => {
       try {
         setLoadingGame(true);
         const res = await axios.get(`http://localhost:5000/api/games/${editId}`, {
           params: {
-            is_admin: true,
-            user_id: user.id
+            is_admin: false,
+            user_id: currentUserId
           }
         });
         const game = res.data;
@@ -64,7 +71,7 @@ const AdminPanel = () => {
     };
 
     fetchGame();
-  }, [editId, isEditMode]);
+  }, [editId, isEditMode, currentUserId]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,6 +86,12 @@ const AdminPanel = () => {
     e.preventDefault();
     setMessage(null);
     setError(null);
+
+    if (!currentUserId) {
+      setError('No se pudo identificar tu sesion. Cierra sesion y vuelve a entrar.');
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = new FormData();
@@ -98,26 +111,23 @@ const AdminPanel = () => {
         payload.append('cover_image', coverImage);
       }
 
-      payload.append('user_id', user.id);
-      payload.append('is_admin', 'true');
-      payload.append('approval_status', 'approved');
+      payload.append('user_id', currentUserId);
+      payload.append('is_admin', 'false');
 
       if (isEditMode) {
         await axios.put(`http://localhost:5000/api/games/${editId}`, payload, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        navigate('/admin/create-game');
-        return;
-      } else {
-        await axios.post('http://localhost:5000/api/games', payload, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        navigate('/admin/create-game');
+        navigate('/my-games');
         return;
       }
-      setFormData({ title: '', developer: '', release_year: '', cover_url: '', genre_id: '' });
-      setCoverImage(null);
-      setFileInputKey(prev => prev + 1);
+
+      await axios.post('http://localhost:5000/api/games', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      navigate('/my-games');
+      return;
     } catch (err) {
       setError(err.response?.data?.message || 'Error al guardar el juego.');
     } finally {
@@ -125,7 +135,7 @@ const AdminPanel = () => {
     }
   };
 
-  if (!user || !user.is_admin) return null;
+  if (!user || user.is_admin) return null;
 
   return (
     <div className="min-vh-100">
@@ -134,11 +144,11 @@ const AdminPanel = () => {
       <div className="container mt-5" style={{ maxWidth: '700px' }}>
         <div className="game-card p-5">
           <h2 className="section-title mb-4 text-white text-center">
-            Panel de <span className="cyan-text">Administración</span>
+            Gestion de <span className="cyan-text">Mis Juegos</span>
           </h2>
 
           <h5 className="text-white mb-4">
-            {isEditMode ? 'Editar juego del catálogo' : 'Agregar nuevo juego al catálogo'}
+            {isEditMode ? 'Editar juego enviado' : 'Crear nuevo juego (pendiente de aprobacion)'}
           </h5>
 
           {loadingGame && <p className="text-secondary">Cargando datos del juego...</p>}
@@ -156,14 +166,14 @@ const AdminPanel = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label text-white">Título <span className="text-danger">*</span></label>
+              <label className="form-label text-white">Titulo <span className="text-danger">*</span></label>
               <input
                 type="text"
                 className="form-control bg-dark text-white border-secondary"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Ej: The Witcher 3"
+                placeholder="Ej: Hollow Knight"
                 required
               />
             </div>
@@ -176,20 +186,20 @@ const AdminPanel = () => {
                 name="developer"
                 value={formData.developer}
                 onChange={handleChange}
-                placeholder="Ej: CD Projekt Red"
+                placeholder="Ej: Team Cherry"
                 required
               />
             </div>
 
             <div className="mb-3">
-              <label className="form-label text-white">Año de lanzamiento</label>
+              <label className="form-label text-white">Ano de lanzamiento</label>
               <input
                 type="number"
                 className="form-control bg-dark text-white border-secondary"
                 name="release_year"
                 value={formData.release_year}
                 onChange={handleChange}
-                placeholder="Ej: 2015"
+                placeholder="Ej: 2017"
                 min="1950"
                 max={new Date().getFullYear() + 5}
               />
@@ -215,7 +225,7 @@ const AdminPanel = () => {
             </div>
 
             <div className="mb-4">
-              <label className="form-label text-white">Género <span className="text-danger">*</span></label>
+              <label className="form-label text-white">Genero <span className="text-danger">*</span></label>
               <select
                 className="form-select bg-dark text-white border-secondary"
                 name="genre_id"
@@ -223,7 +233,7 @@ const AdminPanel = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="">-- Selecciona un género --</option>
+                <option value="">-- Selecciona un genero --</option>
                 {genres.map(g => (
                   <option key={g._id} value={g._id}>{g.name}</option>
                 ))}
@@ -234,7 +244,7 @@ const AdminPanel = () => {
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => navigate('/admin/create-game')}
+                onClick={() => navigate('/my-games')}
               >
                 Volver
               </button>
@@ -253,4 +263,4 @@ const AdminPanel = () => {
   );
 };
 
-export default AdminPanel;
+export default UserGamePanel;

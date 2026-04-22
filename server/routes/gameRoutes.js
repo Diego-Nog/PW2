@@ -14,6 +14,12 @@ router.post('/', gameController.upload.single('cover_image'), gameController.cre
 // Ruta: PUT /api/games/:id (Actualizar juego)
 router.put('/:id', gameController.upload.single('cover_image'), gameController.updateGame);
 
+// Ruta: PUT /api/games/:id/approve (Aprobar juego pendiente)
+router.put('/:id/approve', gameController.approveGame);
+
+// Ruta: PUT /api/games/:id/reject (Rechazar juego)
+router.put('/:id/reject', gameController.rejectGame);
+
 // Ruta: DELETE /api/games/:id (Eliminar juego)
 router.delete('/:id', gameController.deleteGame);
 

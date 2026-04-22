@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import FloatingManageGamesButton from '../components/FloatingManageGamesButton';
 import { useAuth } from '../contexts/AuthContext';
 
 const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Sin+Portada';
@@ -152,6 +153,7 @@ const Home = () => {
           ))}
         </div>
       </main>
+      <FloatingManageGamesButton />
     </div>
   );
 };

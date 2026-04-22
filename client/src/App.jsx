@@ -15,6 +15,8 @@ import AdminGenres from './pages/AdminGenres';
 import CreateGenre from './pages/CreateGenre';
 import CreateUser from './pages/CreateUser';
 import UserRequests from './pages/UserRequests';
+import UserGames from './pages/UserGames';
+import UserGamePanel from './pages/UserGamePanel';
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
           <Route path="/admin/create-genre/new" element={<CreateGenre />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/user-requests" element={<UserRequests />} />
+          <Route path="/my-games" element={<UserGames />} />
+          <Route path="/my-games/new" element={<UserGamePanel />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

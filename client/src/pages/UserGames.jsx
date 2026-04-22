@@ -11,38 +11,58 @@ const resolveCoverSrc = (coverUrl) => {
   return coverUrl.startsWith('/uploads/') ? `http://localhost:5000${coverUrl}` : coverUrl;
 };
 
-const AdminGames = () => {
+const UserGames = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const currentUserId = user?.id || user?._id;
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!user || !user.is_admin) {
-      navigate('/');
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (user.is_admin) {
+      navigate('/admin/create-game');
       return;
     }
 
     const fetchGames = async () => {
+      if (!currentUserId) {
+        setGames([]);
+        setError('No se pudo identificar tu sesion. Cierra sesion y vuelve a entrar.');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const res = await axios.get('http://localhost:5000/api/games', {
           params: {
             include_pending: true,
-            include_rejected: true
+            include_rejected: true,
+            created_by: currentUserId
           }
         });
-        setGames(res.data.games || []);
+
+        const onlyOwnGames = (res.data.games || []).filter((game) => {
+          const ownerId = game.created_by?._id || game.created_by;
+          return ownerId?.toString() === currentUserId?.toString();
+        });
+
+        setGames(onlyOwnGames);
       } catch (err) {
-        setError(err.response?.data?.message || 'No se pudieron cargar los juegos.');
+        setError(err.response?.data?.message || 'No se pudieron cargar tus juegos.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchGames();
-  }, [user, navigate]);
+  }, [user, navigate, currentUserId]);
 
   const handleDelete = async (gameId, title) => {
     const confirmed = window.confirm(`¿Eliminar el juego "${title}"? Esta acción no se puede deshacer.`);
@@ -51,8 +71,8 @@ const AdminGames = () => {
     try {
       await axios.delete(`http://localhost:5000/api/games/${gameId}`, {
         params: {
-          is_admin: true,
-          user_id: user.id
+          user_id: currentUserId,
+          is_admin: false
         }
       });
       setGames(prev => prev.filter(g => g._id !== gameId));
@@ -61,41 +81,7 @@ const AdminGames = () => {
     }
   };
 
-  const handleApprove = async (gameId) => {
-    try {
-      const res = await axios.put(`http://localhost:5000/api/games/${gameId}/approve`, {
-        is_admin: true,
-        user_id: user.id
-      });
-
-      setGames((prev) => prev.map((game) => (
-        game._id === gameId
-          ? { ...game, approval_status: res.data.game?.approval_status || 'approved' }
-          : game
-      )));
-    } catch (err) {
-      window.alert(err.response?.data?.message || 'No se pudo aprobar el juego.');
-    }
-  };
-
-  const handleReject = async (gameId) => {
-    try {
-      const res = await axios.put(`http://localhost:5000/api/games/${gameId}/reject`, {
-        is_admin: true,
-        user_id: user.id
-      });
-
-      setGames((prev) => prev.map((game) => (
-        game._id === gameId
-          ? { ...game, approval_status: res.data.game?.approval_status || 'rejected' }
-          : game
-      )));
-    } catch (err) {
-      window.alert(err.response?.data?.message || 'No se pudo rechazar el juego.');
-    }
-  };
-
-  if (!user || !user.is_admin) return null;
+  if (!user || user.is_admin) return null;
 
   return (
     <div className="min-vh-100">
@@ -105,14 +91,14 @@ const AdminGames = () => {
         <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
           <div>
             <h2 className="section-title mb-2 text-white">
-              Gestionar <span className="cyan-text">Juegos</span>
+              Gestionar <span className="cyan-text">Mis Juegos</span>
             </h2>
-            <p className="text-secondary mb-0">Pasa el mouse por una card para editar o eliminar.</p>
+            <p className="text-secondary mb-0">Tus juegos se publican cuando un admin los apruebe.</p>
           </div>
 
           <button
             className="btn btn-neon px-4"
-            onClick={() => navigate('/admin/create-game/new')}
+            onClick={() => navigate('/my-games/new')}
           >
             Create
           </button>
@@ -123,7 +109,7 @@ const AdminGames = () => {
 
         {!loading && !error && games.length === 0 && (
           <div className="game-card p-4 text-center text-secondary">
-            No hay juegos registrados todavía.
+            Aun no has creado juegos.
           </div>
         )}
 
@@ -141,25 +127,9 @@ const AdminGames = () => {
                 />
 
                 <div className="admin-game-overlay">
-                  {(game.approval_status === 'pending' || game.approval_status === 'rejected') && (
-                    <button
-                      className="btn btn-sm btn-success"
-                      onClick={() => handleApprove(game._id)}
-                    >
-                      Aprobar
-                    </button>
-                  )}
-                  {game.created_by && game.approval_status !== 'rejected' && (
-                    <button
-                      className="btn btn-sm btn-warning"
-                      onClick={() => handleReject(game._id)}
-                    >
-                      Rechazar
-                    </button>
-                  )}
                   <button
                     className="btn btn-sm btn-outline-light"
-                    onClick={() => navigate(`/admin/create-game/new?edit=${game._id}`)}
+                    onClick={() => navigate(`/my-games/new?edit=${game._id}`)}
                   >
                     Editar
                   </button>
@@ -193,9 +163,6 @@ const AdminGames = () => {
                   <p className="text-secondary mb-0 small text-truncate">
                     {game.developer || 'Sin desarrollador'}
                   </p>
-                  <p className="text-secondary mb-0 small text-truncate">
-                    Creador: {game.created_by?.username || 'Admin'}
-                  </p>
                 </div>
               </div>
             </div>
@@ -203,8 +170,8 @@ const AdminGames = () => {
         </div>
 
         <div className="mt-4">
-          <button className="btn btn-outline-secondary" onClick={() => navigate('/admin')}>
-            Volver al panel
+          <button className="btn btn-outline-secondary" onClick={() => navigate('/')}>
+            Volver
           </button>
         </div>
       </div>
@@ -212,4 +179,4 @@ const AdminGames = () => {
   );
 };
 
-export default AdminGames;
+export default UserGames;
