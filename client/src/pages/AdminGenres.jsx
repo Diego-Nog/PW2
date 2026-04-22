@@ -87,7 +87,7 @@ const AdminGenres = () => {
                 {genre.tags?.length > 0 && (
                   <div className="d-flex flex-wrap gap-2 mt-2">
                     {genre.tags.map((tag, index) => (
-                      <span key={`${genre._id}-${index}`} className="badge bg-secondary-subtle text-light border border-secondary">
+                      <span key={`${genre._id}-${index}`} className="genre-tag-badge">
                         {tag}
                       </span>
                     ))}

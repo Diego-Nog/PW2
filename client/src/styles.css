@@ -140,3 +140,16 @@ body {
     border-color: var(--neon-purple);
     box-shadow: 0 8px 20px rgba(157, 80, 187, 0.2);
 }
+
+.genre-tag-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--neon-cyan);
+    background: rgba(0, 242, 254, 0.12);
+    border: 1px solid rgba(0, 242, 254, 0.45);
+    text-shadow: none;
+}

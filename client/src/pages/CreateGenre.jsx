@@ -60,12 +60,10 @@ const CreateGenre = () => {
       };
       if (isEditMode) {
         await axios.put(`http://localhost:5000/api/genres/${editId}`, payload);
-        setMessage('Género actualizado exitosamente.');
       } else {
         await axios.post('http://localhost:5000/api/genres', payload);
-        setMessage('Género creado exitosamente.');
       }
-      setFormData({ name: '', description: '', tags: '' });
+      navigate('/admin/create-genre');
     } catch (err) {
       setError(err.response?.data?.message || 'Error al guardar el género.');
     } finally {

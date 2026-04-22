@@ -97,12 +97,14 @@ const AdminPanel = () => {
         await axios.put(`http://localhost:5000/api/games/${editId}`, payload, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        setMessage('Juego actualizado exitosamente.');
+        navigate('/admin/create-game');
+        return;
       } else {
         await axios.post('http://localhost:5000/api/games', payload, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        setMessage('Juego creado exitosamente en el catálogo.');
+        navigate('/admin/create-game');
+        return;
       }
       setFormData({ title: '', developer: '', release_year: '', cover_url: '', genre_id: '' });
       setCoverImage(null);
