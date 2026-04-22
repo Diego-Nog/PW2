@@ -9,10 +9,10 @@ router.get('/', gameController.getAllGames);
 router.get('/:id', gameController.getGameById);
 
 // Ruta: POST /api/games (Solo para que el Admin agregue juegos)
-router.post('/', gameController.createGame);
+router.post('/', gameController.upload.single('cover_image'), gameController.createGame);
 
 // Ruta: PUT /api/games/:id (Actualizar juego)
-router.put('/:id', gameController.updateGame);
+router.put('/:id', gameController.upload.single('cover_image'), gameController.updateGame);
 
 // Ruta: DELETE /api/games/:id (Eliminar juego)
 router.delete('/:id', gameController.deleteGame);

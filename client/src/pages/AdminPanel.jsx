@@ -19,6 +19,8 @@ const AdminPanel = () => {
     cover_url: '',
     genre_id: ''
   });
+  const [coverImage, setCoverImage] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,29 +65,48 @@ const AdminPanel = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setCoverImage(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
     setLoading(true);
     try {
-      const payload = {
-        title: formData.title,
-        developer: formData.developer,
-        cover_url: formData.cover_url,
-        genre_id: formData.genre_id
-      };
-      if (formData.release_year) {
-        payload.release_year = parseInt(formData.release_year, 10);
+      const payload = new FormData();
+      payload.append('title', formData.title);
+      payload.append('developer', formData.developer);
+      payload.append('genre_id', formData.genre_id);
+
+      if (formData.cover_url) {
+        payload.append('cover_url', formData.cover_url);
       }
+
+      if (formData.release_year) {
+        payload.append('release_year', String(parseInt(formData.release_year, 10)));
+      }
+
+      if (coverImage) {
+        payload.append('cover_image', coverImage);
+      }
+
       if (isEditMode) {
-        await axios.put(`http://localhost:5000/api/games/${editId}`, payload);
+        await axios.put(`http://localhost:5000/api/games/${editId}`, payload, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setMessage('Juego actualizado exitosamente.');
       } else {
-        await axios.post('http://localhost:5000/api/games', payload);
+        await axios.post('http://localhost:5000/api/games', payload, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setMessage('Juego creado exitosamente en el catálogo.');
       }
       setFormData({ title: '', developer: '', release_year: '', cover_url: '', genre_id: '' });
+      setCoverImage(null);
+      setFileInputKey(prev => prev + 1);
     } catch (err) {
       setError(err.response?.data?.message || 'Error al guardar el juego.');
     } finally {
@@ -164,15 +185,22 @@ const AdminPanel = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label text-white">URL de portada</label>
+              <label className="form-label text-white">Imagen de portada</label>
               <input
-                type="url"
+                key={fileInputKey}
+                type="file"
                 className="form-control bg-dark text-white border-secondary"
-                name="cover_url"
-                value={formData.cover_url}
-                onChange={handleChange}
-                placeholder="https://ejemplo.com/imagen.jpg"
+                name="cover_image"
+                onChange={handleImageChange}
+                accept="image/*"
               />
+              <small className="text-secondary d-block mt-1">
+                {coverImage
+                  ? `Archivo seleccionado: ${coverImage.name}`
+                  : isEditMode && formData.cover_url
+                    ? 'Si no seleccionas una nueva imagen, se conserva la actual.'
+                    : 'Selecciona una imagen desde tu dispositivo.'}
+              </small>
             </div>
 
             <div className="mb-4">

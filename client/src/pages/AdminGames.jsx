@@ -6,6 +6,11 @@ import { useAuth } from '../contexts/AuthContext';
 
 const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Sin+Portada';
 
+const resolveCoverSrc = (coverUrl) => {
+  if (!coverUrl) return fallbackCover;
+  return coverUrl.startsWith('/uploads/') ? `http://localhost:5000${coverUrl}` : coverUrl;
+};
+
 const AdminGames = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -83,7 +88,7 @@ const AdminGames = () => {
             <div className="col-12 col-sm-6 col-md-4 col-lg-3" key={game._id}>
               <div className="admin-game-card h-100">
                 <img
-                  src={game.cover_url || fallbackCover}
+                  src={resolveCoverSrc(game.cover_url)}
                   alt={game.title}
                   className="admin-game-image"
                   onError={(e) => {

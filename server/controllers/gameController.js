@@ -1,4 +1,17 @@
 const Game = require('../models/Game'); // Importamos el ORM para Games
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({ storage });
 
 // 1. Obtener todos los juegos (Read All)
 exports.getAllGames = async (req, res) => {
@@ -33,7 +46,8 @@ exports.getGameById = async (req, res) => {
 // 3. Crear un nuevo juego (Create - Solo Admin sugerido)
 exports.createGame = async (req, res) => {
     try {
-        const { title, developer, release_year, cover_url, genre_id } = req.body;
+        const { title, developer, release_year, genre_id } = req.body;
+        const cover_url = req.file ? `/uploads/${req.file.filename}` : req.body.cover_url;
 
         // --- VALIDACIONES INDEPENDIENTES (Rúbrica) ---
         if (!title || !developer || !genre_id) {
@@ -41,8 +55,9 @@ exports.createGame = async (req, res) => {
         }
 
         // Validación de año lógica
+        const parsedReleaseYear = release_year ? parseInt(release_year, 10) : undefined;
         const currentYear = new Date().getFullYear();
-        if (release_year && (release_year < 1950 || release_year > currentYear + 5)) {
+        if (parsedReleaseYear && (parsedReleaseYear < 1950 || parsedReleaseYear > currentYear + 5)) {
             return res.status(400).json({ message: "El año de lanzamiento no es válido" });
         }
 
@@ -50,7 +65,7 @@ exports.createGame = async (req, res) => {
         const newGame = new Game({
             title,
             developer,
-            release_year,
+            release_year: parsedReleaseYear,
             cover_url,
             genre_id
         });
@@ -70,20 +85,22 @@ exports.createGame = async (req, res) => {
 // 4. Actualizar un juego existente (Update)
 exports.updateGame = async (req, res) => {
     try {
-        const { title, developer, release_year, cover_url, genre_id } = req.body;
+        const { title, developer, release_year, genre_id } = req.body;
+        const cover_url = req.file ? `/uploads/${req.file.filename}` : req.body.cover_url;
 
         if (!title || !developer || !genre_id) {
             return res.status(400).json({ message: "Título, Desarrollador y Género son campos obligatorios" });
         }
 
+        const parsedReleaseYear = release_year ? parseInt(release_year, 10) : undefined;
         const currentYear = new Date().getFullYear();
-        if (release_year && (release_year < 1950 || release_year > currentYear + 5)) {
+        if (parsedReleaseYear && (parsedReleaseYear < 1950 || parsedReleaseYear > currentYear + 5)) {
             return res.status(400).json({ message: "El año de lanzamiento no es válido" });
         }
 
         const updatedGame = await Game.findByIdAndUpdate(
             req.params.id,
-            { title, developer, release_year, cover_url, genre_id },
+            { title, developer, release_year: parsedReleaseYear, cover_url, genre_id },
             { new: true, runValidators: true }
         );
 
@@ -114,3 +131,5 @@ exports.deleteGame = async (req, res) => {
         res.status(500).json({ message: "Error al eliminar el juego", error: error.message });
     }
 };
+
+exports.upload = upload;
