@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -7,6 +7,9 @@ import axios from 'axios';
 const AdminPanel = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = Boolean(editId);
 
   const [genres, setGenres] = useState([]);
   const [formData, setFormData] = useState({
@@ -19,6 +22,7 @@ const AdminPanel = () => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingGame, setLoadingGame] = useState(false);
 
   useEffect(() => {
     if (!user || !user.is_admin) {
@@ -29,6 +33,31 @@ const AdminPanel = () => {
       .then(res => setGenres(res.data.genres || res.data))
       .catch(() => setGenres([]));
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const fetchGame = async () => {
+      try {
+        setLoadingGame(true);
+        const res = await axios.get(`http://localhost:5000/api/games/${editId}`);
+        const game = res.data;
+        setFormData({
+          title: game.title || '',
+          developer: game.developer || '',
+          release_year: game.release_year || '',
+          cover_url: game.cover_url || '',
+          genre_id: game.genre_id?._id || game.genre_id || ''
+        });
+      } catch (err) {
+        setError(err.response?.data?.message || 'No se pudo cargar el juego a editar.');
+      } finally {
+        setLoadingGame(false);
+      }
+    };
+
+    fetchGame();
+  }, [editId, isEditMode]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,11 +78,16 @@ const AdminPanel = () => {
       if (formData.release_year) {
         payload.release_year = parseInt(formData.release_year, 10);
       }
-      await axios.post('http://localhost:5000/api/games', payload);
-      setMessage('Juego creado exitosamente en el catálogo.');
+      if (isEditMode) {
+        await axios.put(`http://localhost:5000/api/games/${editId}`, payload);
+        setMessage('Juego actualizado exitosamente.');
+      } else {
+        await axios.post('http://localhost:5000/api/games', payload);
+        setMessage('Juego creado exitosamente en el catálogo.');
+      }
       setFormData({ title: '', developer: '', release_year: '', cover_url: '', genre_id: '' });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al crear el juego.');
+      setError(err.response?.data?.message || 'Error al guardar el juego.');
     } finally {
       setLoading(false);
     }
@@ -71,7 +105,11 @@ const AdminPanel = () => {
             Panel de <span className="cyan-text">Administración</span>
           </h2>
 
-          <h5 className="text-white mb-4">Agregar nuevo juego al catálogo</h5>
+          <h5 className="text-white mb-4">
+            {isEditMode ? 'Editar juego del catálogo' : 'Agregar nuevo juego al catálogo'}
+          </h5>
+
+          {loadingGame && <p className="text-secondary">Cargando datos del juego...</p>}
 
           {message && (
             <div className="alert alert-success" role="alert">
@@ -157,16 +195,16 @@ const AdminPanel = () => {
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate('/admin/create-game')}
               >
                 Volver
               </button>
               <button
                 type="submit"
                 className="btn btn-neon px-5"
-                disabled={loading}
+                disabled={loading || loadingGame}
               >
-                {loading ? 'Guardando...' : 'Crear Juego'}
+                {loading ? 'Guardando...' : isEditMode ? 'Guardar cambios' : 'Crear Juego'}
               </button>
             </div>
           </form>

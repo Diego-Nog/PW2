@@ -66,3 +66,51 @@ exports.createGame = async (req, res) => {
         res.status(500).json({ message: "Error al crear el juego", error: error.message });
     }
 };
+
+// 4. Actualizar un juego existente (Update)
+exports.updateGame = async (req, res) => {
+    try {
+        const { title, developer, release_year, cover_url, genre_id } = req.body;
+
+        if (!title || !developer || !genre_id) {
+            return res.status(400).json({ message: "Título, Desarrollador y Género son campos obligatorios" });
+        }
+
+        const currentYear = new Date().getFullYear();
+        if (release_year && (release_year < 1950 || release_year > currentYear + 5)) {
+            return res.status(400).json({ message: "El año de lanzamiento no es válido" });
+        }
+
+        const updatedGame = await Game.findByIdAndUpdate(
+            req.params.id,
+            { title, developer, release_year, cover_url, genre_id },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedGame) {
+            return res.status(404).json({ message: "Juego no encontrado" });
+        }
+
+        res.status(200).json({
+            message: "Juego actualizado exitosamente",
+            game: updatedGame
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error al actualizar el juego", error: error.message });
+    }
+};
+
+// 5. Eliminar un juego (Delete)
+exports.deleteGame = async (req, res) => {
+    try {
+        const deletedGame = await Game.findByIdAndDelete(req.params.id);
+
+        if (!deletedGame) {
+            return res.status(404).json({ message: "Juego no encontrado" });
+        }
+
+        res.status(200).json({ message: "Juego eliminado exitosamente" });
+    } catch (error) {
+        res.status(500).json({ message: "Error al eliminar el juego", error: error.message });
+    }
+};

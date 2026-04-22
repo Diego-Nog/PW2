@@ -91,3 +91,40 @@ body {
     border-left: 5px solid var(--imdb-yellow);
     padding-left: 15px;
 }
+
+.admin-game-card {
+    position: relative;
+    background-color: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 242, 254, 0.18);
+}
+
+.admin-game-image {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+.admin-game-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.25));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.admin-game-card:hover .admin-game-overlay {
+    opacity: 1;
+}
