@@ -60,6 +60,18 @@ body {
     box-shadow: 0 5px 15px rgba(157, 80, 187, 0.3);
 }
 
+.home-game-card {
+    overflow: hidden;
+    min-height: 380px;
+}
+
+.home-game-image {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+}
+
 .form-control {
     background-color: #1a1a1a !important;
     border: 1px solid #333 !important;
