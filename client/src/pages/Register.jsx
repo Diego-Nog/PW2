@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: '', email: '', password_hash: '' });
   const [profilePic, setProfilePic] = useState(null);
 
@@ -32,6 +33,7 @@ const Register = () => {
         }
       });
       alert(response.data.message);
+      navigate('/login');
     } catch (error) {
       alert(error.response?.data?.message || 'Error');
     }
