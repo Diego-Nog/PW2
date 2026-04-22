@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -7,14 +7,41 @@ import axios from 'axios';
 const CreateGenre = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = Boolean(editId);
   const [formData, setFormData] = useState({ name: '', description: '', tags: '' });
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingGenre, setLoadingGenre] = useState(false);
 
   useEffect(() => {
     if (!user || !user.is_admin) navigate('/');
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const fetchGenre = async () => {
+      try {
+        setLoadingGenre(true);
+        const res = await axios.get(`http://localhost:5000/api/genres/${editId}`);
+        const genre = res.data.genre;
+        setFormData({
+          name: genre.name || '',
+          description: genre.description || '',
+          tags: Array.isArray(genre.tags) ? genre.tags.join(', ') : ''
+        });
+      } catch (err) {
+        setError(err.response?.data?.message || 'No se pudo cargar el género para editar.');
+      } finally {
+        setLoadingGenre(false);
+      }
+    };
+
+    fetchGenre();
+  }, [editId, isEditMode]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,11 +58,16 @@ const CreateGenre = () => {
         description: formData.description,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
       };
-      await axios.post('http://localhost:5000/api/genres', payload);
-      setMessage('Género creado exitosamente.');
+      if (isEditMode) {
+        await axios.put(`http://localhost:5000/api/genres/${editId}`, payload);
+        setMessage('Género actualizado exitosamente.');
+      } else {
+        await axios.post('http://localhost:5000/api/genres', payload);
+        setMessage('Género creado exitosamente.');
+      }
       setFormData({ name: '', description: '', tags: '' });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al crear el género.');
+      setError(err.response?.data?.message || 'Error al guardar el género.');
     } finally {
       setLoading(false);
     }
@@ -50,8 +82,10 @@ const CreateGenre = () => {
       <div className="container mt-5" style={{ maxWidth: '600px' }}>
         <div className="game-card p-5">
           <h2 className="section-title mb-4 text-white text-center">
-            Crear <span className="cyan-text">Género</span>
+            {isEditMode ? 'Editar ' : 'Crear '}<span className="cyan-text">Género</span>
           </h2>
+
+          {loadingGenre && <p className="text-secondary">Cargando datos del género...</p>}
 
           {message && <div className="alert alert-success">{message}</div>}
           {error && <div className="alert alert-danger">{error}</div>}
@@ -98,12 +132,12 @@ const CreateGenre = () => {
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate('/admin/create-genre')}
               >
                 Volver
               </button>
-              <button type="submit" className="btn btn-neon px-5" disabled={loading}>
-                {loading ? 'Guardando...' : 'Crear Género'}
+              <button type="submit" className="btn btn-neon px-5" disabled={loading || loadingGenre}>
+                {loading ? 'Guardando...' : isEditMode ? 'Guardar Cambios' : 'Crear Género'}
               </button>
             </div>
           </form>

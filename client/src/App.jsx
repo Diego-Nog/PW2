@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPanel from './pages/AdminPanel';
 import AdminGames from './pages/AdminGames';
+import AdminGenres from './pages/AdminGenres';
 import CreateGenre from './pages/CreateGenre';
 import CreateUser from './pages/CreateUser';
 import UserRequests from './pages/UserRequests';
@@ -30,7 +31,8 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/create-game" element={<AdminGames />} />
           <Route path="/admin/create-game/new" element={<AdminPanel />} />
-          <Route path="/admin/create-genre" element={<CreateGenre />} />
+          <Route path="/admin/create-genre" element={<AdminGenres />} />
+          <Route path="/admin/create-genre/new" element={<CreateGenre />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/user-requests" element={<UserRequests />} />
         </Routes>

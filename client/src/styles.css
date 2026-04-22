@@ -128,3 +128,15 @@ body {
 .admin-game-card:hover .admin-game-overlay {
     opacity: 1;
 }
+
+.admin-genre-card {
+    background-color: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-genre-card:hover {
+    border-color: var(--neon-purple);
+    box-shadow: 0 8px 20px rgba(157, 80, 187, 0.2);
+}
