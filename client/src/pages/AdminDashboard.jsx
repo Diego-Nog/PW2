@@ -32,14 +32,14 @@ const AdminDashboard = () => {
     },
     {
       label: 'Crear Usuarios',
-      description: 'Crea cuentas de usuario manualmente',
+      description: 'Crea y gestiona cuentas de usuario',
       icon: '👤',
       path: '/admin/create-user',
       color: '#f59e0b'
     },
     {
       label: 'Peticiones de Usuarios',
-      description: 'Gestiona las solicitudes pendientes',
+      description: 'Aprueba o rechaza juegos enviados por usuarios',
       icon: '📋',
       path: '/admin/user-requests',
       color: '#22c55e'

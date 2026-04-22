@@ -10,8 +10,7 @@ const CreateUser = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password_hash: '',
-    is_admin: false
+    password_hash: ''
   });
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
@@ -22,8 +21,7 @@ const CreateUser = () => {
   }, [user, navigate]);
 
   const handleChange = (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -36,10 +34,10 @@ const CreateUser = () => {
         username: formData.username,
         email: formData.email,
         password_hash: formData.password_hash,
-        is_admin: formData.is_admin
+        is_admin: false
       });
       setMessage('Usuario creado exitosamente.');
-      setFormData({ username: '', email: '', password_hash: '', is_admin: false });
+      setFormData({ username: '', email: '', password_hash: '' });
     } catch (err) {
       setError(err.response?.data?.message || 'Error al crear el usuario.');
     } finally {
@@ -102,27 +100,11 @@ const CreateUser = () => {
               />
             </div>
 
-            <div className="mb-4">
-              <div className="form-check">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  name="is_admin"
-                  id="isAdminCheck"
-                  checked={formData.is_admin}
-                  onChange={handleChange}
-                />
-                <label className="form-check-label text-white" htmlFor="isAdminCheck">
-                  Otorgar permisos de administrador
-                </label>
-              </div>
-            </div>
-
             <div className="d-flex justify-content-between">
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate('/admin/create-user')}
               >
                 Volver
               </button>
