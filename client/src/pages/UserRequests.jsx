@@ -50,32 +50,48 @@ const UserRequests = () => {
     <div className="min-vh-100">
       <Navbar />
 
-      <div className="container mt-5" style={{ maxWidth: '900px' }}>
-        <div className="game-card p-5">
-          <h2 className="section-title mb-4 text-white text-center">
-            Peticiones de <span className="cyan-text">Usuarios</span>
-          </h2>
+      <div className="container mt-5 pb-5">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+          <div>
+            <h2 className="section-title mb-2 text-white">
+              Gestionar <span className="cyan-text">Usuarios</span>
+            </h2>
+            <p className="text-secondary mb-0">Administra y elimina usuarios registrados.</p>
+          </div>
 
-          {actionMessage && (
-            <div className="alert alert-info alert-dismissible" role="alert">
-              {actionMessage}
-              <button type="button" className="btn-close" onClick={() => setActionMessage(null)} />
-            </div>
-          )}
-          {error && <div className="alert alert-danger">{error}</div>}
+          <button
+            className="btn btn-neon px-4"
+            onClick={() => navigate('/admin/create-user/new')}
+          >
+            Crear Usuario
+          </button>
+        </div>
 
-          {loading ? (
-            <p className="text-secondary text-center">Cargando usuarios...</p>
-          ) : users.length === 0 ? (
-            <p className="text-secondary text-center">No hay usuarios registrados.</p>
-          ) : (
+        {actionMessage && (
+          <div className="alert alert-info alert-dismissible" role="alert">
+            {actionMessage}
+            <button type="button" className="btn-close" onClick={() => setActionMessage(null)} />
+          </div>
+        )}
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        {loading && <p className="text-secondary">Cargando usuarios...</p>}
+
+        {!loading && !error && users.length === 0 && (
+          <div className="game-card p-4 text-center text-secondary">
+            No hay usuarios registrados todavía.
+          </div>
+        )}
+
+        {!loading && users.length > 0 && (
+          <div className="game-card p-4">
             <div className="table-responsive">
-              <table className="table table-dark table-hover align-middle">
+              <table className="table table-dark table-hover align-middle mb-0">
                 <thead>
                   <tr>
                     <th>Usuario</th>
                     <th>Email</th>
-                    <th className="text-center">Admin</th>
+                    <th className="text-center">Rol</th>
                     <th className="text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -117,16 +133,16 @@ const UserRequests = () => {
                 </tbody>
               </table>
             </div>
-          )}
-
-          <div className="text-center mt-4">
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => navigate('/admin')}
-            >
-              Volver
-            </button>
           </div>
+        )}
+
+        <div className="text-center mt-4">
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => navigate('/admin')}
+          >
+            Volver
+          </button>
         </div>
       </div>
     </div>
