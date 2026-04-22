@@ -5,6 +5,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const genreRoutes = require('./routes/genreRoutes');
 const SystemLog = require('./models/SystemLog');
 
 // Inicializar la aplicación
@@ -19,6 +20,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/genres', genreRoutes);
 
 // Puerto y URI desde el archivo .env
 const PORT = process.env.PORT || 5000;

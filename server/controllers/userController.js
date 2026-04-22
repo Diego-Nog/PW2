@@ -147,4 +147,25 @@ exports.updateUser = async (req, res) => {
     }
 };
 
+// Obtener todos los usuarios (admin)
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, '_id username email profile_pic is_admin');
+        res.status(200).json({ users });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener usuarios', error: error.message });
+    }
+};
+
+// Eliminar un usuario (admin)
+exports.deleteUser = async (req, res) => {
+    try {
+        const deleted = await User.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: 'Usuario no encontrado' });
+        res.status(200).json({ message: 'Usuario eliminado correctamente' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al eliminar usuario', error: error.message });
+    }
+};
+
 exports.upload = upload;

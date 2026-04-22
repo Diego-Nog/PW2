@@ -84,6 +84,14 @@ const Profile = () => {
               >
                 Editar Perfil
               </button>
+              {user.is_admin && (
+                <button
+                  className="btn btn-outline-info w-100"
+                  onClick={() => navigate('/admin')}
+                >
+                  Acceder a Administración
+                </button>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
