@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const genreRoutes = require('./routes/genreRoutes');
+const libraryRoutes = require('./routes/libraryRoutes');
 const SystemLog = require('./models/SystemLog');
 
 // Inicializar la aplicación
@@ -21,6 +22,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/genres', genreRoutes);
+app.use('/api/library', libraryRoutes);
 
 // Puerto y URI desde el archivo .env
 const PORT = process.env.PORT || 5000;
@@ -28,8 +30,14 @@ const MONGO_URI = process.env.MONGO_URI;
 
 // Conexión a MongoDB usando Mongoose (ORM)
 mongoose.connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('Conexión a la base de datos de GameSense establecida con éxito');
+
+    const collection = await mongoose.connection.db.listCollections({ name: 'libraries' }).toArray();
+    if (collection.length === 0) {
+      await mongoose.connection.db.createCollection('libraries');
+      console.log('Coleccion libraries creada en MongoDB');
+    }
     
     // Iniciar el servidor solo si la conexión a la BD es exitosa
     app.listen(PORT, () => {

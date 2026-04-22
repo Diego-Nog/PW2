@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../contexts/AuthContext';
 
 const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Sin+Portada';
 
@@ -11,9 +12,12 @@ const resolveCoverSrc = (coverUrl) => {
 };
 
 const Home = () => {
+  const { user } = useAuth();
   const [games, setGames] = useState([]);
+  const [libraryGameIds, setLibraryGameIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [addingGameId, setAddingGameId] = useState(null);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -31,7 +35,49 @@ const Home = () => {
     fetchGames();
   }, []);
 
+  useEffect(() => {
+    const fetchLibrary = async () => {
+      if (!user?.id) {
+        setLibraryGameIds([]);
+        return;
+      }
+
+      try {
+        const res = await axios.get(`http://localhost:5000/api/library/${user.id}`);
+        const gameIds = (res.data.library || [])
+          .map((item) => item.game_id?._id || item.game_id)
+          .filter(Boolean);
+        setLibraryGameIds(gameIds);
+      } catch {
+        setLibraryGameIds([]);
+      }
+    };
+
+    fetchLibrary();
+  }, [user]);
+
   const featuredGame = useMemo(() => games[0], [games]);
+
+  const handleAddToLibrary = async (gameId) => {
+    if (!user?.id) {
+      window.alert('Debes iniciar sesion para agregar juegos a tu biblioteca.');
+      return;
+    }
+
+    try {
+      setAddingGameId(gameId);
+      await axios.post('http://localhost:5000/api/library', {
+        user_id: user.id,
+        game_id: gameId
+      });
+      setLibraryGameIds((prev) => (prev.includes(gameId) ? prev : [...prev, gameId]));
+      window.alert('Juego agregado a tu biblioteca.');
+    } catch (err) {
+      window.alert(err.response?.data?.message || 'No se pudo agregar el juego.');
+    } finally {
+      setAddingGameId(null);
+    }
+  };
 
   return (
     <div className="min-vh-100">
@@ -82,7 +128,24 @@ const Home = () => {
                 </Link>
                 <div className="p-2 text-center d-flex flex-column flex-grow-1 justify-content-between">
                   <h6 className="text-truncate text-white mb-2">{game.title}</h6>
-                  <Link to={`/games/${game._id}`} className="btn btn-outline-neon btn-sm w-100 mt-2">Reseñar</Link>
+                  {libraryGameIds.includes(game._id) ? (
+                    <button
+                      type="button"
+                      className="btn btn-success btn-sm w-100 mt-2"
+                      disabled
+                    >
+                      Agregado a biblioteca
+                    </button>
+                  ) : (
+                  <button
+                    type="button"
+                    className="btn btn-outline-neon btn-sm w-100 mt-2"
+                    onClick={() => handleAddToLibrary(game._id)}
+                    disabled={addingGameId === game._id}
+                  >
+                    {addingGameId === game._id ? 'Agregando...' : 'Agregar a biblioteca'}
+                  </button>
+                  )}
                 </div>
               </div>
             </div>

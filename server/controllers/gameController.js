@@ -101,7 +101,7 @@ exports.updateGame = async (req, res) => {
         const updatedGame = await Game.findByIdAndUpdate(
             req.params.id,
             { title, developer, release_year: parsedReleaseYear, cover_url, genre_id },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
 
         if (!updatedGame) {

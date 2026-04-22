@@ -72,6 +72,67 @@ body {
     display: block;
 }
 
+.game-cover-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.game-detail-cover {
+    width: 68%;
+    max-width: 235px;
+}
+
+.game-rating-summary {
+    display: flex;
+    margin-top: 6px;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.game-rating-main {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+}
+
+.game-rating-star {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.library-card {
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.library-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 140px;
+}
+
+.library-actions .form-select {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    color: #fff;
+}
+
+.library-rating-row {
+    margin-bottom: 6px;
+}
+
+.review-edit-panel {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
 .form-control {
     background-color: #1a1a1a !important;
     border: 1px solid #333 !important;

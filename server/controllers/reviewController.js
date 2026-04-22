@@ -48,7 +48,52 @@ exports.getGameReviews = async (req, res) => {
     }
 };
 
-// 3. Eliminar una reseña (DELETE /:id)
+// 3. Editar una reseña propia (PUT /:id)
+exports.updateReview = async (req, res) => {
+    try {
+        const { user_id, content, rating } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({ message: "user_id es obligatorio" });
+        }
+
+        if (!content || content.trim().length < 10) {
+            return res.status(400).json({ message: "La reseña debe tener al menos 10 caracteres" });
+        }
+
+        if (!rating || rating < 1 || rating > 10) {
+            return res.status(400).json({ message: "La calificación debe estar entre 1 y 10" });
+        }
+
+        const review = await Review.findById(req.params.id);
+
+        if (!review) {
+            return res.status(404).json({ message: "Reseña no encontrada" });
+        }
+
+        if (review.user_id.toString() !== user_id) {
+            return res.status(403).json({ message: "No tienes permiso para editar esta reseña" });
+        }
+
+        review.content = content;
+        review.rating = rating;
+        review.date = new Date();
+
+        await review.save();
+
+        const populatedReview = await Review.findById(review._id)
+            .populate('user_id', 'username profile_pic');
+
+        return res.status(200).json({
+            message: "Reseña actualizada correctamente",
+            review: populatedReview
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Error al editar la reseña", error: error.message });
+    }
+};
+
+// 4. Eliminar una reseña (DELETE /:id)
 exports.deleteReview = async (req, res) => {
     try {
         // Acción de eliminar mediante el ORM

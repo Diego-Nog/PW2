@@ -65,7 +65,7 @@ exports.updateGenre = async (req, res) => {
         const updatedGenre = await Genre.findByIdAndUpdate(
             req.params.id,
             { name, description, tags },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
 
         if (!updatedGenre) {
