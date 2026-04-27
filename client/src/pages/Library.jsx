@@ -131,12 +131,11 @@ const Library = () => {
 
             return (
             <div className="col" key={item._id}>
-              <div className="game-card p-3 library-card d-flex align-items-center">
+              <div className="game-card p-3 library-card d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
                 <img
                   src={resolveCoverSrc(game.cover_url)}
-                  className="rounded me-3"
+                  className="rounded mb-3 mb-sm-0 me-sm-3 library-card-img"
                   alt={game.title}
-                  style={{ width: '120px', height: '160px', objectFit: 'cover' }}
                   onError={(e) => {
                     e.currentTarget.src = fallbackCover;
                   }}
@@ -156,11 +155,11 @@ const Library = () => {
                   <p className="small text-secondary mb-0">
                     {game.developer || 'Sin desarrollador'}
                   </p>
-                  <p className="small text-secondary mb-0">
+                  <p className="small text-secondary mb-2 mb-sm-0">
                     Estado: {item.status}
                   </p>
                 </div>
-                <div className="library-actions ms-3">
+                <div className="library-actions mt-3 mt-sm-0 ms-sm-3">
                   <Link to={`/games/${game._id}`} className="btn btn-outline-neon btn-sm">
                     Ver info
                   </Link>

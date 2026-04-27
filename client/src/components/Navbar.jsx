@@ -10,6 +10,7 @@ const Navbar = () => {
 
   const [searchText, setSearchText] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [genres, setGenres] = useState([]);
   const [developers, setDevelopers] = useState([]);
   const [years, setYears] = useState([]);
@@ -98,11 +99,13 @@ const Navbar = () => {
     e.preventDefault();
     navigate(`/search?${buildParams().toString()}`);
     setDropdownOpen(false);
+    setMenuOpen(false);
   };
 
   const applyFilters = () => {
     navigate(`/search?${buildParams().toString()}`);
     setDropdownOpen(false);
+    setMenuOpen(false);
   };
 
   const clearFilters = () => {
@@ -120,7 +123,17 @@ const Navbar = () => {
           <span className="neon-text">GAME</span>SENSE
         </Link>
 
-        <form className="d-flex flex-grow-1 mx-lg-5 search-container" onSubmit={handleSearch}>
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className={`collapse navbar-collapse${menuOpen ? ' show' : ''}`}>
+        <form className="d-flex flex-grow-1 mx-lg-5 my-2 my-lg-0 search-container" onSubmit={handleSearch}>
           <div className="input-group position-relative" ref={dropdownRef}>
             <button
               className="btn btn-dark dropdown-toggle border-secondary"
@@ -257,26 +270,27 @@ const Navbar = () => {
           </div>
         </form>
 
-        <div className="navbar-nav align-items-center">
-          <Link className="nav-link fw-bold d-none d-md-block" to="/library">
+        <div className="navbar-nav align-items-lg-center ms-lg-auto mt-2 mt-lg-0">
+          <Link className="nav-link fw-bold" to="/library" onClick={() => setMenuOpen(false)}>
             <i className="bi bi-controller me-1"></i>Mi Biblioteca
           </Link>
           {user ? (
-            <div className="d-flex align-items-center ms-lg-3">
-              <Link to="/profile" className="d-flex align-items-center text-decoration-none">
+            <div className="d-flex align-items-center mt-2 mt-lg-0 ms-lg-3 gap-2">
+              <Link to="/profile" className="d-flex align-items-center text-decoration-none" onClick={() => setMenuOpen(false)}>
                 <img
                   src={user.profile_pic ? `http://localhost:5000${user.profile_pic}` : '/default-avatar.png'}
                   alt="Profile"
                   className="rounded-circle me-2"
                   style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                 />
-                <span className="text-white me-3">{user.username}</span>
+                <span className="text-white me-2">{user.username}</span>
               </Link>
-              <button className="btn btn-outline-secondary" onClick={logout}>Cerrar Sesión</button>
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => { logout(); setMenuOpen(false); }}>Cerrar Sesión</button>
             </div>
           ) : (
-            <Link className="btn btn-neon ms-lg-3" to="/login">Identifícate</Link>
+            <Link className="btn btn-neon mt-2 mt-lg-0 ms-lg-3" to="/login" onClick={() => setMenuOpen(false)}>Identifícate</Link>
           )}
+        </div>
         </div>
       </div>
     </nav>
