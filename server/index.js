@@ -7,6 +7,7 @@ const gameRoutes = require('./routes/gameRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const genreRoutes = require('./routes/genreRoutes');
 const libraryRoutes = require('./routes/libraryRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const SystemLog = require('./models/SystemLog');
 
 // Inicializar la aplicación
@@ -23,6 +24,7 @@ app.use('/api/games', gameRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/genres', genreRoutes);
 app.use('/api/library', libraryRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Puerto y URI desde el archivo .env
 const PORT = process.env.PORT || 5000;

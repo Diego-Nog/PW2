@@ -87,6 +87,35 @@ const AdminDashboard = () => {
             ))}
           </div>
 
+          {/* Reportes — centrado debajo */}
+          <div className="row g-4 mt-1 justify-content-center">
+            <div className="col-12 col-sm-6">
+              <button
+                className="w-100 h-100 text-start p-4 rounded"
+                onClick={() => navigate('/admin/reports')}
+                style={{
+                  background: '#1a1a1a',
+                  border: '2px solid #e11d48',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s',
+                  color: '#fff'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#e11d4822';
+                  e.currentTarget.style.boxShadow = '0 0 18px #e11d4866';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = '#1a1a1a';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📊</div>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#e11d48' }}>Reportes</div>
+                <div className="text-secondary mt-1" style={{ fontSize: '0.85rem' }}>Consulta reportes y estadísticas del sistema</div>
+              </button>
+            </div>
+          </div>
+
           <div className="text-center mt-5">
             <button
               className="btn btn-outline-secondary"

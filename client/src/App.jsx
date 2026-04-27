@@ -19,6 +19,7 @@ import UserGames from './pages/UserGames';
 import UserGamePanel from './pages/UserGamePanel';
 import PendingGameRequests from './pages/PendingGameRequests';
 import SearchResults from './pages/SearchResults';
+import AdminReports from './pages/AdminReports';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/my-games" element={<UserGames />} />
           <Route path="/my-games/new" element={<UserGamePanel />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
