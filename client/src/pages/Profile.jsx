@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,6 +15,16 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        email: user.email || '',
+        password_hash: ''
+      });
+    }
+  }, [user]);
 
   const validate = () => {
     const newErrors = {};
@@ -97,7 +107,12 @@ const Profile = () => {
             <div className="text-center">
               <button
                 className="btn btn-neon w-100 mb-3"
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  setFormData({ username: user.username || '', email: user.email || '', password_hash: '' });
+                  setProfilePic(null);
+                  setErrors({});
+                  setIsEditing(true);
+                }}
               >
                 Editar Perfil
               </button>
