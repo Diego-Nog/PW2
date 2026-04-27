@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const UserRequests = () => {
   const { user } = useAuth();
@@ -24,7 +25,7 @@ const UserRequests = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get('http://localhost:5000/api/users');
+      const res = await axios.get(`${API_URL}/api/users`);
       setUsers(res.data.users || res.data);
     } catch (err) {
       setError('No se pudo cargar la lista de usuarios.');
@@ -36,7 +37,7 @@ const UserRequests = () => {
   const handleDelete = async (userId) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/users/${userId}`);
+      await axios.delete(`${API_URL}/api/users/${userId}`);
       setActionMessage('Usuario eliminado correctamente.');
       setUsers(prev => prev.filter(u => u._id !== userId));
     } catch (err) {
@@ -103,7 +104,7 @@ const UserRequests = () => {
                         <div className="d-flex align-items-center gap-2">
                           <img
                             src={u.profile_pic && u.profile_pic !== 'default_avatar.png'
-                              ? `http://localhost:5000/uploads/${u.profile_pic}`
+                              ? `${API_URL}/uploads/${u.profile_pic}`
                               : '/default-avatar.png'}
                             alt={u.username}
                             className="rounded-circle"

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const AdminPanel = () => {
   const { user } = useAuth();
@@ -31,7 +32,7 @@ const AdminPanel = () => {
       navigate('/');
       return;
     }
-    axios.get('http://localhost:5000/api/genres')
+    axios.get(`${API_URL}/api/genres`)
       .then(res => setGenres(res.data.genres || res.data))
       .catch(() => setGenres([]));
   }, [user, navigate]);
@@ -42,7 +43,7 @@ const AdminPanel = () => {
     const fetchGame = async () => {
       try {
         setLoadingGame(true);
-        const res = await axios.get(`http://localhost:5000/api/games/${editId}`, {
+        const res = await axios.get(`${API_URL}/api/games/${editId}`, {
           params: {
             is_admin: true,
             user_id: user.id
@@ -103,13 +104,13 @@ const AdminPanel = () => {
       payload.append('approval_status', 'approved');
 
       if (isEditMode) {
-        await axios.put(`http://localhost:5000/api/games/${editId}`, payload, {
+        await axios.put(`${API_URL}/api/games/${editId}`, payload, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         navigate('/admin/create-game');
         return;
       } else {
-        await axios.post('http://localhost:5000/api/games', payload, {
+        await axios.post(`${API_URL}/api/games`, payload, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         navigate('/admin/create-game');

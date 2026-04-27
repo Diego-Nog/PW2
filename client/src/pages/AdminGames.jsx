@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,7 +9,7 @@ const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Si
 
 const resolveCoverSrc = (coverUrl) => {
   if (!coverUrl) return fallbackCover;
-  return coverUrl.startsWith('/uploads/') ? `http://localhost:5000${coverUrl}` : coverUrl;
+  return coverUrl.startsWith('/uploads/') ? `${API_URL}${coverUrl}` : coverUrl;
 };
 
 const AdminGames = () => {
@@ -27,7 +28,7 @@ const AdminGames = () => {
     const fetchGames = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:5000/api/games', {
+        const res = await axios.get(`${API_URL}/api/games`, {
           params: {
             include_pending: true,
             include_rejected: true
@@ -49,7 +50,7 @@ const AdminGames = () => {
     if (!confirmed) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/games/${gameId}`, {
+      await axios.delete(`${API_URL}/api/games/${gameId}`, {
         params: {
           is_admin: true,
           user_id: user.id
@@ -63,7 +64,7 @@ const AdminGames = () => {
 
   const handleApprove = async (gameId) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/games/${gameId}/approve`, {
+      const res = await axios.put(`${API_URL}/api/games/${gameId}/approve`, {
         is_admin: true,
         user_id: user.id
       });
@@ -80,7 +81,7 @@ const AdminGames = () => {
 
   const handleReject = async (gameId) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/games/${gameId}/reject`, {
+      const res = await axios.put(`${API_URL}/api/games/${gameId}/reject`, {
         is_admin: true,
         user_id: user.id
       });

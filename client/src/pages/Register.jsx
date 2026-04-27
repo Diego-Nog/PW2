@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
+import API_URL from '../config';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ const Register = () => {
       if (profilePic) {
         data.append('profile_pic', profilePic);
       }
-      await axios.post('http://localhost:5000/api/users/register', data, {
+      await axios.post(`${API_URL}/api/users/register`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       navigate('/login');

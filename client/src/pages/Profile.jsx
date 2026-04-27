@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const Profile = () => {
   const { user, login } = useAuth();
@@ -63,7 +64,7 @@ const Profile = () => {
         data.append('profile_pic', profilePic);
       }
 
-      const response = await axios.put(`http://localhost:5000/api/users/${user.id}`, data, {
+      const response = await axios.put(`${API_URL}/api/users/${user.id}`, data, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -94,7 +95,7 @@ const Profile = () => {
 
           <div className="text-center mb-4">
             <img
-              src={user.profile_pic ? `http://localhost:5000${user.profile_pic}` : '/default-avatar.png'}
+              src={user.profile_pic ? `${API_URL}${user.profile_pic}` : '/default-avatar.png'}
               alt="Profile"
               className="rounded-circle mb-3"
               style={{ width: '120px', height: '120px', objectFit: 'cover' }}

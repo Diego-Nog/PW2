@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const CreateUser = () => {
   const { user } = useAuth();
@@ -76,7 +77,7 @@ const CreateUser = () => {
       if (profilePic) {
         data.append('profile_pic', profilePic);
       }
-      await axios.post('http://localhost:5000/api/users/register', data, {
+      await axios.post(`${API_URL}/api/users/register`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       navigate('/admin/create-user');

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -20,7 +21,7 @@ const AdminGenres = () => {
     const fetchGenres = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:5000/api/genres');
+        const res = await axios.get(`${API_URL}/api/genres`);
         setGenres(res.data.genres || []);
       } catch (err) {
         setError(err.response?.data?.message || 'No se pudieron cargar los géneros.');

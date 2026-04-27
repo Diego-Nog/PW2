@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import FloatingManageGamesButton from '../components/FloatingManageGamesButton';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,7 +10,7 @@ const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Si
 
 const resolveCoverSrc = (coverUrl) => {
   if (!coverUrl) return fallbackCover;
-  return coverUrl.startsWith('/uploads/') ? `http://localhost:5000${coverUrl}` : coverUrl;
+  return coverUrl.startsWith('/uploads/') ? `${API_URL}${coverUrl}` : coverUrl;
 };
 
 const Home = () => {
@@ -24,7 +25,7 @@ const Home = () => {
     const fetchGames = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:5000/api/games');
+        const res = await axios.get(`${API_URL}/api/games`);
         setGames(res.data.games || []);
       } catch (err) {
         setError(err.response?.data?.message || 'No se pudieron cargar los juegos.');
@@ -44,7 +45,7 @@ const Home = () => {
       }
 
       try {
-        const res = await axios.get(`http://localhost:5000/api/library/${user.id}`);
+        const res = await axios.get(`${API_URL}/api/library/${user.id}`);
         const gameIds = (res.data.library || [])
           .map((item) => item.game_id?._id || item.game_id)
           .filter(Boolean);
@@ -67,7 +68,7 @@ const Home = () => {
 
     try {
       setAddingGameId(gameId);
-      await axios.post('http://localhost:5000/api/library', {
+      await axios.post(`${API_URL}/api/library`, {
         user_id: user.id,
         game_id: gameId
       });

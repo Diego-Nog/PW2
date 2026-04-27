@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const REPORTS = [
   {
@@ -220,7 +221,7 @@ const AdminReports = () => {
 
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/reports/${key}`);
+      const res = await axios.get(`${API_URL}/api/reports/${key}`);
       setReportData(res.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Error al cargar el reporte.');

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,7 +9,7 @@ const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Si
 
 const resolveCoverSrc = (coverUrl) => {
   if (!coverUrl) return fallbackCover;
-  return coverUrl.startsWith('/uploads/') ? `http://localhost:5000${coverUrl}` : coverUrl;
+  return coverUrl.startsWith('/uploads/') ? `${API_URL}${coverUrl}` : coverUrl;
 };
 
 const formatDate = (dateValue) => {
@@ -42,8 +43,8 @@ const GameDetail = () => {
         setError(null);
 
         const [gameRes, reviewsRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/games/${gameId}`),
-          axios.get(`http://localhost:5000/api/reviews/${gameId}`)
+          axios.get(`${API_URL}/api/games/${gameId}`),
+          axios.get(`${API_URL}/api/reviews/${gameId}`)
         ]);
 
         setGame(gameRes.data);
@@ -86,7 +87,7 @@ const GameDetail = () => {
 
     try {
       setSavingReviewId(reviewId);
-      const res = await axios.put(`http://localhost:5000/api/reviews/${reviewId}`, {
+      const res = await axios.put(`${API_URL}/api/reviews/${reviewId}`, {
         user_id: user.id,
         rating: Number(editForm.rating),
         content: editForm.content

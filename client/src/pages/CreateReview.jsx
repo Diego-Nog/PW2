@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -18,7 +19,7 @@ const CreateReview = () => {
     const fetchGame = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`http://localhost:5000/api/games/${gameId}`);
+        const res = await axios.get(`${API_URL}/api/games/${gameId}`);
         setGame(res.data);
       } catch (err) {
         setError(err.response?.data?.message || 'No se pudo cargar el juego.');
@@ -51,7 +52,7 @@ const CreateReview = () => {
 
     try {
       setSubmitting(true);
-      await axios.post('http://localhost:5000/api/reviews', {
+      await axios.post(`${API_URL}/api/reviews`, {
         user_id: user.id,
         game_id: gameId,
         content: formData.content,

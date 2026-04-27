@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
@@ -25,8 +26,8 @@ const Navbar = () => {
     const loadFilters = async () => {
       try {
         const [genresRes, gamesRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/genres'),
-          axios.get('http://localhost:5000/api/games'),
+          axios.get(`${API_URL}/api/genres`),
+          axios.get(`${API_URL}/api/games`),
         ]);
         setGenres(genresRes.data.genres || []);
         const gamesList = gamesRes.data.games || [];
@@ -278,7 +279,7 @@ const Navbar = () => {
             <div className="d-flex align-items-center mt-2 mt-lg-0 ms-lg-3 gap-2">
               <Link to="/profile" className="d-flex align-items-center text-decoration-none" onClick={() => setMenuOpen(false)}>
                 <img
-                  src={user.profile_pic ? `http://localhost:5000${user.profile_pic}` : '/default-avatar.png'}
+                  src={user.profile_pic ? `${API_URL}${user.profile_pic}` : '/default-avatar.png'}
                   alt="Profile"
                   className="rounded-circle me-2"
                   style={{ width: '40px', height: '40px', objectFit: 'cover' }}

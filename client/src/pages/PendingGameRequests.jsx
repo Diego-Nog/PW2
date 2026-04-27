@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const PendingGameRequests = () => {
   const { user } = useAuth();
@@ -24,7 +25,7 @@ const PendingGameRequests = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get('http://localhost:5000/api/games', {
+      const res = await axios.get(`${API_URL}/api/games`, {
         params: { only_pending: true }
       });
       setGames(res.data.games || []);
@@ -37,7 +38,7 @@ const PendingGameRequests = () => {
 
   const handleApprove = async (gameId) => {
     try {
-      await axios.put(`http://localhost:5000/api/games/${gameId}/approve`, {
+      await axios.put(`${API_URL}/api/games/${gameId}/approve`, {
         is_admin: true
       });
       setActionMessage('Juego aprobado correctamente.');
@@ -50,7 +51,7 @@ const PendingGameRequests = () => {
   const handleReject = async (gameId) => {
     if (!window.confirm('¿Estás seguro de que deseas rechazar este juego?')) return;
     try {
-      await axios.put(`http://localhost:5000/api/games/${gameId}/reject`, {
+      await axios.put(`${API_URL}/api/games/${gameId}/reject`, {
         is_admin: true
       });
       setActionMessage('Juego rechazado.');
@@ -102,7 +103,7 @@ const PendingGameRequests = () => {
                       <img
                         src={
                           game.cover_url.startsWith('/uploads/')
-                            ? `http://localhost:5000${game.cover_url}`
+                            ? `${API_URL}${game.cover_url}`
                             : game.cover_url
                         }
                         alt={game.title}

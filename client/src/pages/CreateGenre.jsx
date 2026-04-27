@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_URL from '../config';
 
 const CreateGenre = () => {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ const CreateGenre = () => {
     const fetchGenre = async () => {
       try {
         setLoadingGenre(true);
-        const res = await axios.get(`http://localhost:5000/api/genres/${editId}`);
+        const res = await axios.get(`${API_URL}/api/genres/${editId}`);
         const genre = res.data.genre;
         setFormData({
           name: genre.name || '',
@@ -59,9 +60,9 @@ const CreateGenre = () => {
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
       };
       if (isEditMode) {
-        await axios.put(`http://localhost:5000/api/genres/${editId}`, payload);
+        await axios.put(`${API_URL}/api/genres/${editId}`, payload);
       } else {
-        await axios.post('http://localhost:5000/api/genres', payload);
+        await axios.post(`${API_URL}/api/genres`, payload);
       }
       navigate('/admin/create-genre');
     } catch (err) {

@@ -13,10 +13,41 @@ const SystemLog = require('./models/SystemLog');
 // Inicializar la aplicación
 const app = express();
 
-// Middlewares
+// Middlewares básicos
 app.use(cors());
-app.use(express.json()); // Permite recibir datos en formato JSON
+app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+
+// Puerto y URI desde el archivo .env
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI;
+
+// Conexión a MongoDB con caché para Vercel serverless
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(MONGO_URI);
+  isConnected = true;
+  console.log('Conexión a la base de datos de GameSense establecida con éxito');
+
+  const collection = await mongoose.connection.db.listCollections({ name: 'libraries' }).toArray();
+  if (collection.length === 0) {
+    await mongoose.connection.db.createCollection('libraries');
+    console.log('Coleccion libraries creada en MongoDB');
+  }
+}
+
+// Middleware que asegura conexión a BD antes de cada request (necesario en serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('Error conectando a la base de datos:', error.message);
+    res.status(500).json({ message: 'Error de conexión a la base de datos' });
+  }
+});
 
 // Rutas de la API
 app.use('/api/users', userRoutes);
@@ -26,32 +57,23 @@ app.use('/api/genres', genreRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/reports', reportRoutes);
 
-// Puerto y URI desde el archivo .env
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
-
-// Conexión a MongoDB usando Mongoose (ORM)
-mongoose.connect(MONGO_URI)
-  .then(async () => {
-    console.log('Conexión a la base de datos de GameSense establecida con éxito');
-
-    const collection = await mongoose.connection.db.listCollections({ name: 'libraries' }).toArray();
-    if (collection.length === 0) {
-      await mongoose.connection.db.createCollection('libraries');
-      console.log('Coleccion libraries creada en MongoDB');
-    }
-    
-    // Iniciar el servidor solo si la conexión a la BD es exitosa
-    app.listen(PORT, () => {
-      console.log(`Servidor Back End corriendo en el puerto ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Error conectando a la base de datos:', error.message);
-    // Más adelante, enviaremos este error a tu colección System_Logs
-  });
-
 // Ruta de prueba
 app.get('/', (req, res) => {
   res.send('API de GameSense funcionando correctamente');
 });
+
+// Iniciar servidor solo en entorno local (no serverless)
+if (process.env.NODE_ENV !== 'production') {
+  connectDB()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Servidor Back End corriendo en el puerto ${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error('Error conectando a la base de datos:', error.message);
+    });
+}
+
+// Exportar para Vercel serverless
+module.exports = app;

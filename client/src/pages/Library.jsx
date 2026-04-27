@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,7 +9,7 @@ const fallbackCover = 'https://via.placeholder.com/240x135/121212/00F2FE?text=Si
 
 const resolveCoverSrc = (coverUrl) => {
   if (!coverUrl) return fallbackCover;
-  return coverUrl.startsWith('/uploads/') ? `http://localhost:5000${coverUrl}` : coverUrl;
+  return coverUrl.startsWith('/uploads/') ? `${API_URL}${coverUrl}` : coverUrl;
 };
 
 const Library = () => {
@@ -31,7 +32,7 @@ const Library = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await axios.get(`http://localhost:5000/api/library/${user.id}`);
+        const res = await axios.get(`${API_URL}/api/library/${user.id}`);
         setItems(res.data.library || []);
       } catch (err) {
         setError(err.response?.data?.message || 'No se pudo cargar la biblioteca.');
@@ -57,7 +58,7 @@ const Library = () => {
       try {
         const ratingsEntries = await Promise.all(
           gameIds.map(async (gameId) => {
-            const res = await axios.get(`http://localhost:5000/api/reviews/${gameId}`);
+            const res = await axios.get(`${API_URL}/api/reviews/${gameId}`);
             const reviews = Array.isArray(res.data) ? res.data : [];
             const average = reviews.length
               ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
@@ -79,7 +80,7 @@ const Library = () => {
   const handleStatusChange = async (libraryId, status) => {
     try {
       setUpdatingId(libraryId);
-      const res = await axios.patch(`http://localhost:5000/api/library/${libraryId}`, { status });
+      const res = await axios.patch(`${API_URL}/api/library/${libraryId}`, { status });
       setItems((prev) => prev.map((item) => (
         item._id === libraryId ? res.data.library : item
       )));
@@ -93,7 +94,7 @@ const Library = () => {
   const handleRemove = async (libraryId) => {
     try {
       setRemovingId(libraryId);
-      await axios.delete(`http://localhost:5000/api/library/${libraryId}`);
+      await axios.delete(`${API_URL}/api/library/${libraryId}`);
       setItems((prev) => prev.filter((item) => item._id !== libraryId));
     } catch (err) {
       window.alert(err.response?.data?.message || 'No se pudo eliminar el juego de la biblioteca.');
