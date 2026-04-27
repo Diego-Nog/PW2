@@ -51,20 +51,11 @@ const UserRequests = () => {
       <Navbar />
 
       <div className="container mt-5 pb-5">
-        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-          <div>
-            <h2 className="section-title mb-2 text-white">
-              Gestionar <span className="cyan-text">Usuarios</span>
-            </h2>
-            <p className="text-secondary mb-0">Administra y elimina usuarios registrados.</p>
-          </div>
-
-          <button
-            className="btn btn-neon px-4"
-            onClick={() => navigate('/admin/create-user/new')}
-          >
-            Crear Usuario
-          </button>
+        <div className="mb-4">
+          <h2 className="section-title mb-2 text-white">
+            Gestionar <span className="cyan-text">Usuarios</span>
+          </h2>
+          <p className="text-secondary mb-0">Administra y elimina usuarios registrados.</p>
         </div>
 
         {actionMessage && (
@@ -75,30 +66,40 @@ const UserRequests = () => {
         )}
         {error && <div className="alert alert-danger">{error}</div>}
 
-        {loading && <p className="text-secondary">Cargando usuarios...</p>}
-
-        {!loading && !error && users.length === 0 && (
-          <div className="game-card p-4 text-center text-secondary">
-            No hay usuarios registrados todavía.
+        <div className="game-card overflow-hidden">
+          <div className="d-flex justify-content-between align-items-center px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <span className="text-secondary small">
+              {loading ? 'Cargando...' : `${users.length} usuario${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''}`}
+            </span>
+            <button
+              className="btn btn-neon px-4"
+              onClick={() => navigate('/admin/create-user/new')}
+            >
+              Crear Usuario
+            </button>
           </div>
-        )}
 
-        {!loading && users.length > 0 && (
-          <div className="game-card p-4">
+          {loading && <p className="text-secondary text-center py-4">Cargando usuarios...</p>}
+
+          {!loading && !error && users.length === 0 && (
+            <p className="text-center text-secondary py-4">No hay usuarios registrados todavía.</p>
+          )}
+
+          {!loading && users.length > 0 && (
             <div className="table-responsive">
-              <table className="table table-dark table-hover align-middle mb-0">
+              <table className="table table-hover align-middle mb-0" style={{ background: 'transparent' }}>
                 <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th className="text-center">Rol</th>
-                    <th className="text-center">Acciones</th>
+                  <tr style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+                    <th className="text-white-50 fw-semibold" style={{ background: 'transparent' }}>Usuario</th>
+                    <th className="text-white-50 fw-semibold" style={{ background: 'transparent' }}>Email</th>
+                    <th className="text-white-50 fw-semibold text-center" style={{ background: 'transparent' }}>Rol</th>
+                    <th className="text-white-50 fw-semibold text-center" style={{ background: 'transparent' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map(u => (
-                    <tr key={u._id}>
-                      <td>
+                    <tr key={u._id} style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                      <td style={{ background: 'transparent' }}>
                         <div className="d-flex align-items-center gap-2">
                           <img
                             src={u.profile_pic && u.profile_pic !== 'default_avatar.png'
@@ -108,17 +109,17 @@ const UserRequests = () => {
                             className="rounded-circle"
                             style={{ width: '36px', height: '36px', objectFit: 'cover' }}
                           />
-                          <span>{u.username}</span>
+                          <span className="text-white">{u.username}</span>
                         </div>
                       </td>
-                      <td className="text-secondary">{u.email}</td>
-                      <td className="text-center">
+                      <td className="text-secondary" style={{ background: 'transparent' }}>{u.email}</td>
+                      <td className="text-center" style={{ background: 'transparent' }}>
                         {u.is_admin
                           ? <span className="badge" style={{ background: 'var(--neon-cyan)', color: '#000' }}>Admin</span>
                           : <span className="badge bg-secondary">Usuario</span>
                         }
                       </td>
-                      <td className="text-center">
+                      <td className="text-center" style={{ background: 'transparent' }}>
                         {u._id !== user.id && (
                           <button
                             className="btn btn-sm btn-outline-danger"
@@ -133,8 +134,8 @@ const UserRequests = () => {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="text-center mt-4">
           <button

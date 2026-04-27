@@ -30,7 +30,18 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: "Formato de email inválido" });
         }
 
-        // 3. Verificar si el usuario ya existe (Consulta al ORM)
+        // 3. Validar contraseña: mínimo 4 caracteres, al menos 1 mayúscula y 1 número
+        if (password_hash.length < 4) {
+            return res.status(400).json({ message: "La contraseña debe tener al menos 4 caracteres" });
+        }
+        if (!/[A-Z]/.test(password_hash)) {
+            return res.status(400).json({ message: "La contraseña debe contener al menos una letra mayúscula" });
+        }
+        if (!/[0-9]/.test(password_hash)) {
+            return res.status(400).json({ message: "La contraseña debe contener al menos un número" });
+        }
+
+        // 4. Verificar si el usuario ya existe (Consulta al ORM)
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
         if (userExists) {
             return res.status(400).json({ message: "El usuario o email ya están registrados" });
