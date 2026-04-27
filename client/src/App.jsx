@@ -18,6 +18,7 @@ import UserRequests from './pages/UserRequests';
 import UserGames from './pages/UserGames';
 import UserGamePanel from './pages/UserGamePanel';
 import PendingGameRequests from './pages/PendingGameRequests';
+import SearchResults from './pages/SearchResults';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/admin/user-requests" element={<PendingGameRequests />} />
           <Route path="/my-games" element={<UserGames />} />
           <Route path="/my-games/new" element={<UserGamePanel />} />
+          <Route path="/search" element={<SearchResults />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

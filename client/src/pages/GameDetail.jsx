@@ -148,7 +148,8 @@ const GameDetail = () => {
               <h2 className="cyan-text">{game.title}</h2>
               <p className="text-secondary">
                 Desarrollador: {game.developer || 'No disponible'}<br />
-                Lanzamiento: {game.release_year || 'No disponible'}
+                Lanzamiento: {game.release_year || 'No disponible'}<br />
+                Género: {game.genre_id?.name || 'No disponible'}
               </p>
               <div className="d-grid gap-2">
                 <Link to={`/games/${game._id}/review`} className="btn btn-neon">
