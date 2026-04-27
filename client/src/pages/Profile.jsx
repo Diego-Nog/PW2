@@ -14,6 +14,22 @@ const Profile = () => {
   });
   const [profilePic, setProfilePic] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+    if (formData.password_hash) {
+      if (formData.password_hash.length < 4) {
+        newErrors.password_hash = 'Mínimo 4 caracteres';
+      } else if (!/[A-Z]/.test(formData.password_hash)) {
+        newErrors.password_hash = 'Debe incluir al menos una mayúscula';
+      } else if (!/[0-9]/.test(formData.password_hash)) {
+        newErrors.password_hash = 'Debe incluir al menos un número';
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,6 +41,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
     try {
       const data = new FormData();
       data.append('username', formData.username);
@@ -127,6 +144,10 @@ const Profile = () => {
                   onChange={handleChange}
                   placeholder="Deja vacío para mantener la actual"
                 />
+                {errors.password_hash && (
+                  <div className="text-danger small mt-1">{errors.password_hash}</div>
+                )}
+                <small className="text-secondary">Mínimo 4 caracteres, 1 mayúscula y 1 número</small>
               </div>
               <div className="mb-3">
                 <label className="form-label text-white">Foto de Perfil</label>
