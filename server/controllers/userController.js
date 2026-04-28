@@ -2,10 +2,10 @@ const User = require('../models/User'); // Importamos el modelo (ORM)
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
-const { isServerless, toPublicImagePath, uploadImage } = require('../utils/imageStorage');
+const { useCloudinaryUploads, toPublicImagePath, uploadImage } = require('../utils/imageStorage');
 
 // Configurar multer para subir archivos
-const storage = isServerless
+const storage = useCloudinaryUploads
     ? multer.memoryStorage()
     : multer.diskStorage({
             destination: (req, file, cb) => {

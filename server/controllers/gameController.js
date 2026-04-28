@@ -2,9 +2,9 @@ const Game = require('../models/Game'); // Importamos el ORM para Games
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
-const { isServerless, uploadImage } = require('../utils/imageStorage');
+const { useCloudinaryUploads, uploadImage } = require('../utils/imageStorage');
 
-const storage = isServerless
+const storage = useCloudinaryUploads
     ? multer.memoryStorage()
     : multer.diskStorage({
         destination: (req, file, cb) => {

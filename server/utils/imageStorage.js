@@ -1,11 +1,12 @@
 const { v2: cloudinary } = require('cloudinary');
 
-const isServerless = Boolean(process.env.VERCEL);
 const hasCloudinaryConfig = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME
   && process.env.CLOUDINARY_API_KEY
   && process.env.CLOUDINARY_API_SECRET
 );
+
+const useCloudinaryUploads = hasCloudinaryConfig;
 
 if (hasCloudinaryConfig) {
   cloudinary.config({
@@ -26,12 +27,8 @@ const toPublicImagePath = (value) => {
 async function uploadImage(file, folder) {
   if (!file) return null;
 
-  if (!isServerless) {
+  if (!useCloudinaryUploads) {
     return file.filename;
-  }
-
-  if (!hasCloudinaryConfig) {
-    throw new Error('Cloudinary no está configurado en Vercel');
   }
 
   if (!file.buffer) {
@@ -59,7 +56,7 @@ async function uploadImage(file, folder) {
 }
 
 module.exports = {
-  isServerless,
+  useCloudinaryUploads,
   toPublicImagePath,
   uploadImage,
 };
