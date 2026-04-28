@@ -5,7 +5,7 @@ import API_URL from '../config';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 
-const fallbackCover = 'https://via.placeholder.com/240x135/121212/00F2FE?text=Sin+Portada';
+const fallbackCover = '/cover-placeholder.svg';
 
 const resolveCoverSrc = (coverUrl) => {
   if (!coverUrl) return fallbackCover;

@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import FloatingManageGamesButton from '../components/FloatingManageGamesButton';
 import { useAuth } from '../contexts/AuthContext';
 
-const fallbackCover = 'https://via.placeholder.com/400x560/121212/00F2FE?text=Sin+Portada';
+const fallbackCover = '/cover-placeholder.svg';
 
 const resolveCoverSrc = (coverUrl) => {
   if (!coverUrl) return fallbackCover;
