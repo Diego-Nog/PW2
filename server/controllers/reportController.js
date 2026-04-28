@@ -1,4 +1,5 @@
 const Game = require('../models/Game');
+const Library = require('../models/Library');
 const Review = require('../models/Review');
 const User = require('../models/User');
 const SystemLog = require('../models/SystemLog');
@@ -184,5 +185,46 @@ exports.systemHealth = async (req, res) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ message: 'Error al generar reporte de Salud del Sistema', error: err.message });
+  }
+};
+
+// Reporte 5: Top Juegos Mas Guardados
+// Cruza Library y Games para identificar los juegos que mas aparecen en bibliotecas de usuarios.
+exports.topSavedGames = async (req, res) => {
+  try {
+    const data = await Library.aggregate([
+      {
+        $group: {
+          _id: '$game_id',
+          save_count: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: 'games',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'game'
+        }
+      },
+      { $unwind: '$game' },
+      { $match: { 'game.approval_status': 'approved' } },
+      {
+        $project: {
+          _id: 0,
+          game_id: '$game._id',
+          game_title: '$game.title',
+          developer: '$game.developer',
+          release_year: '$game.release_year',
+          save_count: 1
+        }
+      },
+      { $sort: { save_count: -1, game_title: 1 } },
+      { $limit: 10 }
+    ]);
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: 'Error al generar reporte Top Juegos Mas Guardados', error: err.message });
   }
 };

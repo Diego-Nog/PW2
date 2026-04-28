@@ -22,6 +22,11 @@ const REPORTS = [
     description: 'Años de lanzamiento con más atención actualmente (Games + Reviews)'
   },
   {
+    key: 'top-saved-games',
+    label: 'Top Juegos mas guardados',
+    description: 'Juegos que mas veces fueron guardados en bibliotecas de usuarios (Games + Libraries)'
+  },
+  {
     key: 'system-health',
     label: 'Salud del Sistema',
     description: 'Frecuencia de errores en login y publicación (System Logs)'
@@ -151,6 +156,54 @@ const LaunchTrends = ({ data }) => {
   );
 };
 
+const TopSavedGames = ({ data }) => {
+  if (!data.length) return <p className="text-secondary">No hay datos disponibles.</p>;
+  const maxSaves = Math.max(...data.map((row) => row.save_count), 1);
+
+  return (
+    <div className="table-responsive">
+      <table className="table table-dark table-hover table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Juego</th>
+            <th>Desarrollador</th>
+            <th>Año</th>
+            <th>Veces guardado</th>
+            <th style={{ width: '25%' }}>Impacto relativo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, index) => (
+            <tr key={row.game_id || index}>
+              <td className="text-secondary">{index + 1}</td>
+              <td style={{ color: 'var(--neon-cyan)', fontWeight: 'bold' }}>{row.game_title}</td>
+              <td className="text-white">{row.developer}</td>
+              <td className="text-secondary">{row.release_year || '—'}</td>
+              <td>
+                <span className="badge" style={{ background: '#0ea5e9', fontSize: '0.9rem' }}>
+                  {row.save_count}
+                </span>
+              </td>
+              <td>
+                <div
+                  style={{
+                    height: '10px',
+                    borderRadius: '4px',
+                    background: `linear-gradient(90deg, #0ea5e9 ${Math.round(
+                      (row.save_count / maxSaves) * 100
+                    )}%, #2a2a2a 0%)`
+                  }}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 const SystemHealth = ({ data }) => {
   if (!data.length)
     return <p className="text-secondary">No se han registrado errores. ✅</p>;
@@ -244,6 +297,8 @@ const AdminReports = () => {
         return <CriticActivity data={reportData} />;
       case 'launch-trends':
         return <LaunchTrends data={reportData} />;
+      case 'top-saved-games':
+        return <TopSavedGames data={reportData} />;
       case 'system-health':
         return <SystemHealth data={reportData} />;
       default:
