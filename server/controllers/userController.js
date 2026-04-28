@@ -3,15 +3,21 @@ const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
 
+// En Vercel no hay filesystem persistente para guardar uploads en disco.
+const isServerless = Boolean(process.env.VERCEL);
+
 // Configurar multer para subir archivos
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
+const storage = isServerless
+    ? multer.memoryStorage()
+    : multer.diskStorage({
+            destination: (req, file, cb) => {
+                cb(null, 'uploads/');
+            },
+            filename: (req, file, cb) => {
+                cb(null, Date.now() + path.extname(file.originalname));
+            }
+        });
+
 const upload = multer({ storage: storage });
 
 // Registro de Usuario (CREATE)
@@ -53,7 +59,7 @@ exports.registerUser = async (req, res) => {
 
         // Handle profile picture
         let profilePic = 'default_avatar.png';
-        if (req.file) {
+        if (req.file && req.file.filename) {
             profilePic = req.file.filename;
         }
 
@@ -133,7 +139,7 @@ exports.updateUser = async (req, res) => {
         }
 
         // Handle profile picture
-        if (req.file) {
+        if (req.file && req.file.filename) {
             updateData.profile_pic = req.file.filename;
         }
 
