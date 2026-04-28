@@ -5,6 +5,7 @@ import axios from 'axios';
 import API_URL from '../config';
 
 const Register = () => {
+  const supportsProfilePicUpload = API_URL.includes('localhost') || API_URL.includes('127.0.0.1');
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: '', email: '', password_hash: '' });
   const [profilePic, setProfilePic] = useState(null);
@@ -25,7 +26,7 @@ const Register = () => {
     } else if (!/[0-9]/.test(formData.password_hash)) {
       newErrors.password_hash = 'Debe incluir al menos un número';
     }
-    if (!profilePic) {
+    if (supportsProfilePicUpload && !profilePic) {
       newErrors.profilePic = 'La foto de perfil es obligatoria';
     }
     return newErrors;
@@ -61,7 +62,7 @@ const Register = () => {
       data.append('username', formData.username);
       data.append('email', formData.email);
       data.append('password_hash', formData.password_hash);
-      if (profilePic) {
+      if (supportsProfilePicUpload && profilePic) {
         data.append('profile_pic', profilePic);
       }
       await axios.post(`${API_URL}/api/users/register`, data, {
@@ -130,7 +131,9 @@ const Register = () => {
             </div>
 
             <div className="mb-4">
-              <label className="form-label text-white">Foto de perfil <span className="text-danger">*</span></label>
+              <label className="form-label text-white">
+                Foto de perfil {supportsProfilePicUpload && <span className="text-danger">*</span>}
+              </label>
               <div className="d-flex align-items-center gap-3">
                 {profilePicPreview ? (
                   <img
@@ -152,8 +155,12 @@ const Register = () => {
                   className={`form-control bg-dark text-white border-secondary${errors.profilePic ? ' is-invalid' : ''}`}
                   accept="image/*"
                   onChange={handleFileChange}
+                  disabled={!supportsProfilePicUpload}
                 />
               </div>
+              {!supportsProfilePicUpload && (
+                <div className="text-secondary small mt-1">En la version desplegada la cuenta se crea sin foto de perfil.</div>
+              )}
               {errors.profilePic && <div className="text-danger small mt-1">{errors.profilePic}</div>}
             </div>
 
