@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "migrate-uploads": "node migrateUploadsToCloudinary.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
