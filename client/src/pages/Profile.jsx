@@ -5,6 +5,11 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import API_URL from '../config';
 
+const resolveProfilePicSrc = (profilePic) => {
+  if (!profilePic) return '/default-avatar.png';
+  return profilePic.startsWith('http') ? profilePic : `${API_URL}${profilePic}`;
+};
+
 const Profile = () => {
   const { user, login } = useAuth();
   const navigate = useNavigate();
@@ -95,7 +100,7 @@ const Profile = () => {
 
           <div className="text-center mb-4">
             <img
-              src={user.profile_pic ? `${API_URL}${user.profile_pic}` : '/default-avatar.png'}
+              src={resolveProfilePicSrc(user.profile_pic)}
               alt="Profile"
               className="rounded-circle mb-3"
               style={{ width: '120px', height: '120px', objectFit: 'cover' }}

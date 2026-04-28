@@ -2,15 +2,18 @@ const Game = require('../models/Game'); // Importamos el ORM para Games
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
+const { isServerless, uploadImage } = require('../utils/imageStorage');
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}${path.extname(file.originalname)}`);
-    }
-});
+const storage = isServerless
+    ? multer.memoryStorage()
+    : multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'uploads/');
+        },
+        filename: (req, file, cb) => {
+            cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+        }
+    });
 
 const upload = multer({ storage });
 
@@ -102,7 +105,8 @@ exports.getGameById = async (req, res) => {
 exports.createGame = async (req, res) => {
     try {
         const { title, developer, release_year, genre_id } = req.body;
-        const cover_url = req.file ? `/uploads/${req.file.filename}` : req.body.cover_url;
+        const uploadedCoverUrl = req.file ? await uploadImage(req.file, 'gamesense/game-covers') : null;
+        const cover_url = uploadedCoverUrl || req.body.cover_url;
         const requesterIsAdmin = isTruthy(req.body.is_admin);
         const requesterUserId = sanitizeUserId(req.body.user_id);
 
@@ -155,7 +159,8 @@ exports.createGame = async (req, res) => {
 exports.updateGame = async (req, res) => {
     try {
         const { title, developer, release_year, genre_id } = req.body;
-        const cover_url = req.file ? `/uploads/${req.file.filename}` : req.body.cover_url;
+        const uploadedCoverUrl = req.file ? await uploadImage(req.file, 'gamesense/game-covers') : null;
+        const cover_url = uploadedCoverUrl || req.body.cover_url;
         const requesterIsAdmin = isTruthy(req.body.is_admin);
         const requesterUserId = sanitizeUserId(req.body.user_id);
 

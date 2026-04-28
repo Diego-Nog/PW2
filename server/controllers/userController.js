@@ -2,9 +2,7 @@ const User = require('../models/User'); // Importamos el modelo (ORM)
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
-
-// En Vercel no hay filesystem persistente para guardar uploads en disco.
-const isServerless = Boolean(process.env.VERCEL);
+const { isServerless, toPublicImagePath, uploadImage } = require('../utils/imageStorage');
 
 // Configurar multer para subir archivos
 const storage = isServerless
@@ -59,8 +57,8 @@ exports.registerUser = async (req, res) => {
 
         // Handle profile picture
         let profilePic = 'default_avatar.png';
-        if (req.file && req.file.filename) {
-            profilePic = req.file.filename;
+        if (req.file) {
+            profilePic = await uploadImage(req.file, 'gamesense/profile-pics');
         }
 
         // Crear el nuevo usuario usando el ORM
@@ -79,7 +77,7 @@ exports.registerUser = async (req, res) => {
             user: { 
                 id: newUser._id, 
                 username: newUser.username, 
-                profile_pic: newUser.profile_pic && newUser.profile_pic !== 'default_avatar.png' ? `/uploads/${newUser.profile_pic}` : null
+                profile_pic: toPublicImagePath(newUser.profile_pic)
             }
         });
 
@@ -109,7 +107,7 @@ exports.loginUser = async (req, res) => {
                     id: user._id,
                     username: user.username,
                     email: user.email,
-                    profile_pic: user.profile_pic && user.profile_pic !== 'default_avatar.png' ? `/uploads/${user.profile_pic}` : null,
+                    profile_pic: toPublicImagePath(user.profile_pic),
                     is_admin: user.is_admin
                 },
                 token: "JWT_TOKEN_PENDIENTE" // Lo implementaremos en la siguiente fase
@@ -139,8 +137,8 @@ exports.updateUser = async (req, res) => {
         }
 
         // Handle profile picture
-        if (req.file && req.file.filename) {
-            updateData.profile_pic = req.file.filename;
+        if (req.file) {
+            updateData.profile_pic = await uploadImage(req.file, 'gamesense/profile-pics');
         }
 
         const updatedUser = await User.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
@@ -155,7 +153,7 @@ exports.updateUser = async (req, res) => {
                 id: updatedUser._id,
                 username: updatedUser.username,
                 email: updatedUser.email,
-                profile_pic: updatedUser.profile_pic && updatedUser.profile_pic !== 'default_avatar.png' ? `/uploads/${updatedUser.profile_pic}` : null
+                profile_pic: toPublicImagePath(updatedUser.profile_pic)
             }
         });
 

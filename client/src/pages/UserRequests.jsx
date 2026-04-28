@@ -5,6 +5,11 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import API_URL from '../config';
 
+const resolveProfilePicSrc = (profilePic) => {
+  if (!profilePic || profilePic === 'default_avatar.png') return '/default-avatar.png';
+  return profilePic.startsWith('http') ? profilePic : `${API_URL}/uploads/${profilePic}`;
+};
+
 const UserRequests = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -103,9 +108,7 @@ const UserRequests = () => {
                       <td style={{ background: 'transparent' }}>
                         <div className="d-flex align-items-center gap-2">
                           <img
-                            src={u.profile_pic && u.profile_pic !== 'default_avatar.png'
-                              ? `${API_URL}/uploads/${u.profile_pic}`
-                              : '/default-avatar.png'}
+                            src={resolveProfilePicSrc(u.profile_pic)}
                             alt={u.username}
                             className="rounded-circle"
                             style={{ width: '36px', height: '36px', objectFit: 'cover' }}
