@@ -2,10 +2,11 @@ const Library = require('../models/Library');
 
 exports.addToLibrary = async (req, res) => {
   try {
-    const { user_id, game_id, status } = req.body;
+    const { game_id, status } = req.body;
+    const user_id = req.user.id;
 
-    if (!user_id || !game_id) {
-      return res.status(400).json({ message: 'user_id y game_id son obligatorios' });
+    if (!game_id) {
+      return res.status(400).json({ message: 'game_id es obligatorio' });
     }
 
     const entry = await Library.create({
@@ -31,6 +32,10 @@ exports.getUserLibrary = async (req, res) => {
   try {
     const { userId } = req.params;
 
+    if (!req.user.is_admin && req.user.id !== userId) {
+      return res.status(403).json({ message: 'No tienes permiso para consultar esta biblioteca' });
+    }
+
     const library = await Library.find({ user_id: userId })
       .populate('game_id')
       .sort({ createdAt: -1 });
@@ -53,15 +58,21 @@ exports.updateLibraryStatus = async (req, res) => {
       return res.status(400).json({ message: 'El estado es obligatorio' });
     }
 
+    const existingEntry = await Library.findById(id);
+
+    if (!existingEntry) {
+      return res.status(404).json({ message: 'Registro de biblioteca no encontrado' });
+    }
+
+    if (!req.user.is_admin && existingEntry.user_id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'No tienes permiso para actualizar este registro' });
+    }
+
     const updatedEntry = await Library.findByIdAndUpdate(
       id,
       { status },
       { new: true, runValidators: true }
     ).populate('game_id');
-
-    if (!updatedEntry) {
-      return res.status(404).json({ message: 'Registro de biblioteca no encontrado' });
-    }
 
     return res.status(200).json({
       message: 'Estado actualizado correctamente',
@@ -76,11 +87,17 @@ exports.removeFromLibrary = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedEntry = await Library.findByIdAndDelete(id);
+    const entry = await Library.findById(id);
 
-    if (!deletedEntry) {
+    if (!entry) {
       return res.status(404).json({ message: 'Registro de biblioteca no encontrado' });
     }
+
+    if (!req.user.is_admin && entry.user_id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'No tienes permiso para eliminar este registro' });
+    }
+
+    const deletedEntry = await Library.findByIdAndDelete(id);
 
     return res.status(200).json({ message: 'Juego eliminado de tu biblioteca' });
   } catch (error) {

@@ -3,7 +3,8 @@ const Review = require('../models/Review'); // Importamos el ORM
 // 1. Crear una nueva reseña (POST /)
 exports.createReview = async (req, res) => {
     try {
-        const { user_id, game_id, content, rating } = req.body;
+        const { game_id, content, rating } = req.body;
+        const user_id = req.user.id;
 
         // --- VALIDACIONES INDEPENDIENTES (Rúbrica) ---
         if (!content || content.trim().length < 10) {
@@ -51,11 +52,8 @@ exports.getGameReviews = async (req, res) => {
 // 3. Editar una reseña propia (PUT /:id)
 exports.updateReview = async (req, res) => {
     try {
-        const { user_id, content, rating } = req.body;
-
-        if (!user_id) {
-            return res.status(400).json({ message: "user_id es obligatorio" });
-        }
+        const { content, rating } = req.body;
+        const user_id = req.user.id;
 
         if (!content || content.trim().length < 10) {
             return res.status(400).json({ message: "La reseña debe tener al menos 10 caracteres" });
@@ -96,12 +94,17 @@ exports.updateReview = async (req, res) => {
 // 4. Eliminar una reseña (DELETE /:id)
 exports.deleteReview = async (req, res) => {
     try {
-        // Acción de eliminar mediante el ORM
-        const deletedReview = await Review.findByIdAndDelete(req.params.id);
+        const review = await Review.findById(req.params.id);
 
-        if (!deletedReview) {
+        if (!review) {
             return res.status(404).json({ message: "Reseña no encontrada" });
         }
+
+        if (!req.user.is_admin && review.user_id.toString() !== req.user.id) {
+            return res.status(403).json({ message: "No tienes permiso para eliminar esta reseña" });
+        }
+
+        const deletedReview = await Review.findByIdAndDelete(req.params.id);
 
         res.status(200).json({ message: "Reseña eliminada correctamente" });
     } catch (error) {

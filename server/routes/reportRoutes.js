@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const reportController = require('../controllers/reportController');
+const { requireAdmin } = require('../middleware/authMiddleware');
+
+router.use(requireAdmin);
 
 // GET /api/reports/top-rated-by-genre
 router.get('/top-rated-by-genre', reportController.topRatedByGenre);

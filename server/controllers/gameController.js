@@ -17,8 +17,6 @@ const storage = useCloudinaryUploads
 
 const upload = multer({ storage });
 
-const isTruthy = (value) => value === true || value === 'true';
-
 const sanitizeUserId = (value) => {
     if (value === undefined || value === null) return null;
 
@@ -28,11 +26,21 @@ const sanitizeUserId = (value) => {
     return normalized;
 };
 
-const buildGamesFilter = (query) => {
+const resolveApprovalStatus = (game) => {
+    if (game?.approval_status === 'approved') {
+        return 'pending';
+    }
+
+    return game?.approval_status;
+};
+
+const buildGamesFilter = (query, authenticatedUser) => {
     const filter = {};
-    const includePending = isTruthy(query.include_pending);
-    const includeRejected = isTruthy(query.include_rejected);
-    const onlyPending = isTruthy(query.only_pending);
+    const includePending = query.include_pending === 'true';
+    const includeRejected = query.include_rejected === 'true';
+    const onlyPending = query.only_pending === 'true';
+    const requestedCreatorId = sanitizeUserId(query.created_by);
+    const isAdmin = Boolean(authenticatedUser?.is_admin);
 
     if (onlyPending) {
         // Solo pendientes
@@ -48,8 +56,10 @@ const buildGamesFilter = (query) => {
         filter.approval_status = 'approved';
     }
 
-    if (query.created_by) {
-        filter.created_by = query.created_by;
+    if (requestedCreatorId) {
+        filter.created_by = isAdmin ? requestedCreatorId : authenticatedUser.id;
+    } else if (!isAdmin && (includePending || includeRejected || onlyPending)) {
+        filter.created_by = authenticatedUser.id;
     }
 
     return filter;
@@ -58,7 +68,7 @@ const buildGamesFilter = (query) => {
 // 1. Obtener todos los juegos (Read All)
 exports.getAllGames = async (req, res) => {
     try {
-        const filter = buildGamesFilter(req.query);
+        const filter = buildGamesFilter(req.query, req.user);
 
         // Usamos el ORM para obtener la lista y "popular" el nombre del género
         const games = await Game.find(filter)
@@ -86,8 +96,8 @@ exports.getGameById = async (req, res) => {
         }
 
         if (game.approval_status !== 'approved') {
-            const requesterIsAdmin = isTruthy(req.query.is_admin);
-            const requesterUserId = req.query.user_id;
+            const requesterIsAdmin = Boolean(req.user?.is_admin);
+            const requesterUserId = req.user?.id;
             const ownerId = game.created_by?._id ? game.created_by._id.toString() : game.created_by?.toString();
 
             if (!requesterIsAdmin && (!requesterUserId || ownerId !== requesterUserId)) {
@@ -107,8 +117,8 @@ exports.createGame = async (req, res) => {
         const { title, developer, release_year, genre_id } = req.body;
         const uploadedCoverUrl = req.file ? await uploadImage(req.file, 'gamesense/game-covers') : null;
         const cover_url = uploadedCoverUrl || req.body.cover_url;
-        const requesterIsAdmin = isTruthy(req.body.is_admin);
-        const requesterUserId = sanitizeUserId(req.body.user_id);
+        const requesterIsAdmin = Boolean(req.user?.is_admin);
+        const requesterUserId = sanitizeUserId(req.user?.id);
 
         // --- VALIDACIONES INDEPENDIENTES (Rúbrica) ---
         if (!title || !developer || !genre_id) {
@@ -161,8 +171,8 @@ exports.updateGame = async (req, res) => {
         const { title, developer, release_year, genre_id } = req.body;
         const uploadedCoverUrl = req.file ? await uploadImage(req.file, 'gamesense/game-covers') : null;
         const cover_url = uploadedCoverUrl || req.body.cover_url;
-        const requesterIsAdmin = isTruthy(req.body.is_admin);
-        const requesterUserId = sanitizeUserId(req.body.user_id);
+        const requesterIsAdmin = Boolean(req.user?.is_admin);
+        const requesterUserId = sanitizeUserId(req.user?.id);
 
         if (!title || !developer || !genre_id) {
             return res.status(400).json({ message: "Título, Desarrollador y Género son campos obligatorios" });
@@ -223,8 +233,8 @@ exports.updateGame = async (req, res) => {
 // 5. Eliminar un juego (Delete)
 exports.deleteGame = async (req, res) => {
     try {
-        const requesterIsAdmin = isTruthy(req.query.is_admin) || isTruthy(req.body?.is_admin);
-        const requesterUserId = sanitizeUserId(req.query.user_id || req.body?.user_id);
+        const requesterIsAdmin = Boolean(req.user?.is_admin);
+        const requesterUserId = sanitizeUserId(req.user?.id);
         const targetGame = await Game.findById(req.params.id);
 
         if (!targetGame) {
@@ -256,7 +266,7 @@ exports.deleteGame = async (req, res) => {
 // 6. Aprobar un juego pendiente (Solo Admin)
 exports.approveGame = async (req, res) => {
     try {
-        if (!isTruthy(req.body.is_admin)) {
+        if (!req.user?.is_admin) {
             return res.status(403).json({ message: "Solo un administrador puede aprobar juegos" });
         }
 
@@ -281,7 +291,7 @@ exports.approveGame = async (req, res) => {
 // 7. Rechazar un juego (Solo Admin)
 exports.rejectGame = async (req, res) => {
     try {
-        if (!isTruthy(req.body.is_admin)) {
+        if (!req.user?.is_admin) {
             return res.status(403).json({ message: "Solo un administrador puede rechazar juegos" });
         }
 

@@ -1,8 +1,29 @@
 const User = require('../models/User'); // Importamos el modelo (ORM)
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const { useCloudinaryUploads, toPublicImagePath, uploadImage } = require('../utils/imageStorage');
+const { getJwtSecret } = require('../middleware/authMiddleware');
+
+const buildAuthUser = (user) => ({
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    profile_pic: toPublicImagePath(user.profile_pic),
+    is_admin: user.is_admin
+});
+
+const signAuthToken = (user) => jwt.sign(
+    {
+        id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        is_admin: user.is_admin
+    },
+    getJwtSecret(),
+    { expiresIn: '12h' }
+);
 
 // Configurar multer para subir archivos
 const storage = useCloudinaryUploads
@@ -101,16 +122,13 @@ exports.loginUser = async (req, res) => {
 
         // Validación de credenciales
         if (user && await bcrypt.compare(password_hash, user.password_hash)) {
+            const authUser = buildAuthUser(user);
+            const token = signAuthToken(user);
+
             res.status(200).json({
                 message: "Login exitoso",
-                user: {
-                    id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    profile_pic: toPublicImagePath(user.profile_pic),
-                    is_admin: user.is_admin
-                },
-                token: "JWT_TOKEN_PENDIENTE" // Lo implementaremos en la siguiente fase
+                user: authUser,
+                token
             });
         } else {
             res.status(401).json({ message: "Credenciales inválidas" });
@@ -126,6 +144,10 @@ exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const { username, email, password_hash } = req.body;
+
+        if (!req.user?.is_admin && req.user?.id !== id) {
+            return res.status(403).json({ message: 'No tienes permiso para actualizar este usuario' });
+        }
 
         const updateData = { username, email };
 
@@ -165,6 +187,10 @@ exports.updateUser = async (req, res) => {
 // Obtener todos los usuarios (admin)
 exports.getAllUsers = async (req, res) => {
     try {
+        if (!req.user?.is_admin) {
+            return res.status(403).json({ message: 'Solo un administrador puede listar usuarios' });
+        }
+
         const users = await User.find({}, '_id username email profile_pic is_admin');
         res.status(200).json({ users });
     } catch (error) {
@@ -175,6 +201,10 @@ exports.getAllUsers = async (req, res) => {
 // Eliminar un usuario (admin)
 exports.deleteUser = async (req, res) => {
     try {
+        if (!req.user?.is_admin) {
+            return res.status(403).json({ message: 'Solo un administrador puede eliminar usuarios' });
+        }
+
         const deleted = await User.findByIdAndDelete(req.params.id);
         if (!deleted) return res.status(404).json({ message: 'Usuario no encontrado' });
         res.status(200).json({ message: 'Usuario eliminado correctamente' });

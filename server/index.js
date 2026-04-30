@@ -9,6 +9,7 @@ const genreRoutes = require('./routes/genreRoutes');
 const libraryRoutes = require('./routes/libraryRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const SystemLog = require('./models/SystemLog');
+const { authenticateToken } = require('./middleware/authMiddleware');
 
 // Inicializar la aplicación
 const app = express();
@@ -51,11 +52,11 @@ app.use(async (req, res, next) => {
 
 // Rutas de la API
 app.use('/api/users', userRoutes);
-app.use('/api/games', gameRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/genres', genreRoutes);
-app.use('/api/library', libraryRoutes);
-app.use('/api/reports', reportRoutes);
+app.use('/api/games', authenticateToken, gameRoutes);
+app.use('/api/reviews', authenticateToken, reviewRoutes);
+app.use('/api/genres', authenticateToken, genreRoutes);
+app.use('/api/library', authenticateToken, libraryRoutes);
+app.use('/api/reports', authenticateToken, reportRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

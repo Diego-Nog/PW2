@@ -1,6 +1,7 @@
   import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -21,30 +22,40 @@ import PendingGameRequests from './pages/PendingGameRequests';
 import SearchResults from './pages/SearchResults';
 import AdminReports from './pages/AdminReports';
 
+function ProtectedRoute({ children }) {
+  const { token } = useAuth();
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/games/:gameId" element={<GameDetail />} />
-          <Route path="/games/:gameId/review" element={<CreateReview />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/create-game" element={<AdminGames />} />
-          <Route path="/admin/create-game/new" element={<AdminPanel />} />
-          <Route path="/admin/create-genre" element={<AdminGenres />} />
-          <Route path="/admin/create-genre/new" element={<CreateGenre />} />
-          <Route path="/admin/create-user" element={<UserRequests />} />
-          <Route path="/admin/create-user/new" element={<CreateUser />} />
-          <Route path="/admin/user-requests" element={<PendingGameRequests />} />
-          <Route path="/my-games" element={<UserGames />} />
-          <Route path="/my-games/new" element={<UserGamePanel />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/games/:gameId" element={<ProtectedRoute><GameDetail /></ProtectedRoute>} />
+          <Route path="/games/:gameId/review" element={<ProtectedRoute><CreateReview /></ProtectedRoute>} />
+          <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/create-game" element={<ProtectedRoute><AdminGames /></ProtectedRoute>} />
+          <Route path="/admin/create-game/new" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/create-genre" element={<ProtectedRoute><AdminGenres /></ProtectedRoute>} />
+          <Route path="/admin/create-genre/new" element={<ProtectedRoute><CreateGenre /></ProtectedRoute>} />
+          <Route path="/admin/create-user" element={<ProtectedRoute><UserRequests /></ProtectedRoute>} />
+          <Route path="/admin/create-user/new" element={<ProtectedRoute><CreateUser /></ProtectedRoute>} />
+          <Route path="/admin/user-requests" element={<ProtectedRoute><PendingGameRequests /></ProtectedRoute>} />
+          <Route path="/my-games" element={<ProtectedRoute><UserGames /></ProtectedRoute>} />
+          <Route path="/my-games/new" element={<ProtectedRoute><UserGamePanel /></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
+          <Route path="/admin/reports" element={<ProtectedRoute><AdminReports /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
